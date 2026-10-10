@@ -38,9 +38,9 @@
         input:focus { outline: none; border-color: var(--p); background: #fff; }
 
         nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); border-top: 1px solid #E5E5EA; display: flex; justify-content: space-around; padding: 10px 0 20px; max-width: 500px; margin: 0 auto; z-index: 20; backdrop-filter: blur(10px); }
-        .nav-i { flex: 1; text-align: center; font-size: 10px; color: var(--s); cursor: pointer; }
+        .nav-i { flex: 1; text-align: center; font-size: 10px; color: var(--s); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .nav-i.act { color: var(--p); font-weight: 600; }
-        .nav-ic { font-size: 20px; display: block; margin-bottom: 2px; }
+        .nav-ic { font-size: 24px; margin-bottom: 2px; display: block; } /* Увеличил размер иконок */
 
         .screen { display: none; }
         .screen.on { display: block; }
@@ -121,15 +121,23 @@
     </main>
 
     <nav>
-        <div class="nav-i act" onclick="go('s1')"><span class="nav-ic"></span>Главная</div>
-        <div class="nav-i" onclick="go('s2')"><span class="nav-ic"></span>Добавить</div>
-        <div class="nav-i" onclick="go('s4')"><span class="nav-ic"></span>История</div>
-        <div class="nav-i" onclick="go('s3')"><span class="nav-ic"></span>Стат</div>
+        <div class="nav-i act" onclick="go('s1')">
+            <span class="nav-ic">🏠</span>Главная
+        </div>
+        <div class="nav-i" onclick="go('s2')">
+            <span class="nav-ic">➕</span>Добавить
+        </div>
+        <div class="nav-i" onclick="go('s4')">
+            <span class="nav-ic">📋</span>История
+        </div>
+        <div class="nav-i" onclick="go('s3')">
+            <span class="nav-ic">📊</span>Статистика
+        </div>
     </nav>
 </div>
 
 <script>
-    const K='alc_safe_v3'; 
+    const K='alc_safe_v6'; 
     let D={g:20,l:[]}; 
     
     window.onload=()=>{
@@ -142,7 +150,6 @@
     
     function saveToLS(){ 
         localStorage.setItem(K, JSON.stringify(D)); 
-        // Важно: здесь мы НЕ вызываем renderDash(), чтобы избежать циклов при навигации
     }
     
     function go(id){
@@ -153,7 +160,6 @@
         const m={'s1':0,'s2':1,'s4':2,'s3':3};
         document.querySelectorAll('.nav-i')[m[id]].classList.add('act');
         
-        // Вызываем рендер только для конкретного экрана
         if(id==='s1') renderDash(); 
         if(id==='s3') renderStats(); 
         if(id==='s4') renderHist(); 
@@ -199,7 +205,7 @@
         
         saveToLS(); 
         resetForm(); 
-        go('s1'); // Переход на главный экран запустит renderDash()
+        go('s1');
     }
     
     function resetForm(){ 
@@ -224,7 +230,7 @@
             D.l=D.l.filter(x=>x.id!=id); 
             saveToLS(); 
             renderHist(); 
-            renderDash(); // Обновляем цифры на главной, если удалили сегодняшнюю запись
+            renderDash();
         } 
     }
     
@@ -242,24 +248,20 @@
         bf.style.background=sm>D.g?'var(--r)':'var(--g)';
         st.innerText=sm>D.g ? `Превышено на ${Math.round(((sm-D.g)/D.g)*100)}%` : `Ост: ${(D.g-sm).toFixed(1)}`;
         
-        // Streak calculation (Safe Loop)
         let str=0; 
         const ds=[...new Set(D.l.map(l=>l.d))].sort().reverse();
         
-        // Если сегодня пили - стрик 0
         if(ds.length > 0 && ds[0] === td) {
             str = 0;
         } else {
-            // Иначе начинаем считать со вчера
             str = 1; 
             let d=new Date(); 
             d.setDate(d.getDate()-1); 
             
-            // Защита от вечного цикла: максимум 365 дней назад
             let safetyCounter = 0;
             while(safetyCounter < 365){ 
                 const dateStr = d.toISOString().split('T')[0];
-                if(ds.includes(dateStr)) break; // Наткнулись на день с алкоголем
+                if(ds.includes(dateStr)) break; 
                 str++; 
                 d.setDate(d.getDate()-1); 
                 safetyCounter++;
@@ -267,7 +269,6 @@
         }
         document.getElementById('v2').innerText=str;
         
-        // Risk calculation
         const d30=new Date(); d30.setDate(d30.getDate()-30);
         const recentLogs = D.l.filter(l=> new Date(l.d) >= d30);
         const avg = recentLogs.length > 0 ? recentLogs.reduce((s,l)=>s+l.g,0)/30 : 0;
@@ -284,7 +285,6 @@
             l.innerHTML='<div style="text-align:center;padding:20px;color:#999">Пусто</div>'; 
             return; 
         }
-        // Ограничиваем вывод последними 50 записями для скорости
         const recent = D.l.slice().reverse().slice(0, 50);
         l.innerHTML=recent.map(x=>`
             <div class="row">
