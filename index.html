@@ -4,698 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Alcohol Control</title>
-    <meta name="theme-color" content="#F2F4F8">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+    <meta name="theme-color" content="#ffffff">
     <style>
-        :root {
-            --primary: #007AFF; /* Apple Blue */
-            --success: #34C759; /* Apple Green */
-            --danger: #FF3B30;  /* Apple Red */
-            --warning: #FF9500; /* Apple Orange */
-            --bg: #F2F4F8;
-            --card-bg: #FFFFFF;
-            --text-main: #1C1C1E;
-            --text-sec: #8E8E93;
-            --border: #E5E5EA;
-            --shadow: 0 4px 12px rgba(0,0,0,0.05);
-            --radius: 16px;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            position: relative;
-        }
-
-        /* Header */
-        header {
-            padding: 20px 20px 10px;
-            background: rgba(242, 244, 248, 0.95);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-bottom: 15px;
-        }
+        /* Максимальная производительность: системные шрифты, минимум теней */
+        :root { --p: #007AFF; --g: #34C759; --r: #FF3B30; --bg: #F2F2F7; --c: #FFFFFF; --t: #000000; --s: #8E8E93; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--t); -webkit-tap-highlight-color: transparent; }
         
-        h1 {
-            font-size: 28px;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: -0.5px;
-            color: var(--text-main);
-        }
+        .app { max-width: 500px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--c); box-shadow: 0 0 20px rgba(0,0,0,0.05); }
         
-        .date-badge {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-sec);
-            background: #E5E5EA;
-            padding: 4px 8px;
-            border-radius: 12px;
-        }
+        header { padding: 15px 20px; border-bottom: 1px solid #E5E5EA; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(5px); }
+        h1 { font-size: 20px; margin: 0; font-weight: 700; }
+        .date { font-size: 13px; color: var(--s); font-weight: 500; }
 
-        /* Main Content */
-        main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 16px 80px 16px; /* Padding bottom for nav */
-            scroll-behavior: smooth;
-        }
-
-        /* Cards */
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
-        }
+        main { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 80px; }
         
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+        .card { background: var(--c); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #E5E5EA; }
+        .title { font-size: 12px; text-transform: uppercase; color: var(--s); font-weight: 600; margin-bottom: 10px; letter-spacing: 0.5px; }
         
-        .section-title {
-            font-size: 15px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-sec);
-        }
-
-        /* Warning Block */
-        .who-alert {
-            background: linear-gradient(135deg, #FFF5F5 0%, #FFFFFF 100%);
-            border-left: 4px solid var(--danger);
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            line-height: 1.4;
-            color: #4A4A4A;
-            box-shadow: 0 2px 8px rgba(255, 59, 48, 0.1);
-        }
-        .who-alert strong { color: var(--danger); }
-
-        /* Metrics Grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+        .warn { background: #FFF0F0; border-left: 4px solid var(--r); padding: 10px 12px; font-size: 13px; color: #555; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
         
-        .metric-item {
-            background: #F9FAFB;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            border: 1px solid rgba(0,0,0,0.03);
-        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .box { background: #F9F9F9; padding: 12px; border-radius: 10px; text-align: center; }
+        .val { font-size: 22px; font-weight: 700; display: block; margin-bottom: 2px; }
+        .lbl { font-size: 11px; color: var(--s); }
+
+        .bar-bg { height: 6px; background: #E5E5EA; border-radius: 3px; margin-top: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--g); width: 0%; transition: width 0.3s linear; }
         
-        .metric-val {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
-        
-        .metric-label {
-            font-size: 12px;
-            color: var(--text-sec);
-            font-weight: 500;
-        }
+        .btn { width: 100%; padding: 14px; background: var(--p); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 5px; }
+        .btn:active { opacity: 0.7; }
+        .btn-sec { background: #E5E5EA; color: #000; margin-top: 10px; }
 
-        /* Progress Bar Style Status */
-        .status-container {
-            margin-top: 16px;
-            background: #F2F4F8;
-            border-radius: 8px;
-            height: 8px;
-            width: 100%;
-            overflow: hidden;
-        }
-        .status-fill {
-            height: 100%;
-            background: var(--success);
-            width: 0%;
-            transition: width 0.5s ease, background 0.3s;
-        }
-        .status-text {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 6px;
-            color: var(--text-sec);
-        }
+        input, select { width: 100%; padding: 12px; border: 1px solid #E5E5EA; border-radius: 10px; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; background: #FAFAFA; }
+        input:focus { outline: none; border-color: var(--p); background: #fff; }
 
-        /* Risk Card */
-        .risk-card {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border-radius: 12px;
-            margin-top: 8px;
-        }
-        .risk-low { background: #EAFBF0; color: #008040; }
-        .risk-med { background: #FFF8E6; color: #B86E00; }
-        .risk-high { background: #FFEAEA; color: #D00000; }
-        
-        .risk-icon { font-size: 24px; margin-right: 12px; }
-        .risk-info h4 { margin: 0; font-size: 14px; font-weight: 700; }
-        .risk-info p { margin: 2px 0 0; font-size: 12px; opacity: 0.8; }
+        nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); border-top: 1px solid #E5E5EA; display: flex; justify-content: space-around; padding: 10px 0 20px; max-width: 500px; margin: 0 auto; z-index: 20; backdrop-filter: blur(10px); }
+        .nav-i { flex: 1; text-align: center; font-size: 10px; color: var(--s); cursor: pointer; }
+        .nav-i.act { color: var(--p); font-weight: 600; }
+        .nav-ic { font-size: 20px; display: block; margin-bottom: 2px; }
 
-        /* Buttons & Inputs */
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-            transition: transform 0.1s;
-        }
-        .btn-primary:active { transform: scale(0.98); }
+        .screen { display: none; }
+        .screen.on { display: block; }
 
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 13px; font-weight: 600; color: var(--text-sec); margin-bottom: 6px; }
-        input, select {
-            width: 100%;
-            padding: 14px;
-            background: #F9FAFB;
-            border: 1px solid transparent;
-            border-radius: 12px;
-            font-size: 16px;
-            font-family: inherit;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-        input:focus, select:focus {
-            background: #fff;
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-        }
+        /* Легкий график на CSS */
+        .chart { display: flex; align-items: flex-end; justify-content: space-between; height: 100px; padding-top: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
+        .col { display: flex; flex-direction: column; align-items: center; width: 12%; }
+        .b { width: 8px; background: #E5E5EA; border-radius: 4px; transition: height 0.3s; }
+        .b.on { background: var(--p); }
+        .d { font-size: 9px; color: var(--s); margin-top: 4px; }
 
-        /* Navigation */
-        nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-            z-index: 100;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            color: #999;
-            font-size: 10px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .nav-item.active { color: var(--primary); }
-        .nav-icon { font-size: 22px; margin-bottom: 4px; }
-
-        /* Screens */
-        .screen { display: none; animation: fadeIn 0.3s ease-out; }
-        .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Simple Chart Bars */
-        .chart-row {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            height: 120px;
-            padding-top: 20px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 10px;
-        }
-        .chart-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 12%;
-        }
-        .chart-bar {
-            width: 6px;
-            background: #E5E5EA;
-            border-radius: 3px;
-            transition: height 0.5s, background 0.3s;
-        }
-        .chart-bar.active { background: var(--primary); }
-        .chart-day {
-            font-size: 10px;
-            color: var(--text-sec);
-            margin-top: 6px;
-        }
-
-        /* History List */
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .h-info h4 { margin: 0; font-size: 15px; font-weight: 600; }
-        .h-info span { font-size: 12px; color: var(--text-sec); }
-        .h-val { text-align: right; }
-        .h-grams { font-weight: 700; font-size: 15px; display: block; }
-        .h-actions button {
-            background: none; border: none; font-size: 14px; padding: 4px 8px; cursor: pointer;
-        }
-        .btn-edit { color: var(--primary); }
-        .btn-del { color: var(--danger); }
-
+        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .row:last-child { border: none; }
+        .act-btn { background: none; border: none; font-size: 12px; padding: 5px; cursor: pointer; }
+        .e { color: var(--p); } .d { color: var(--r); }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app">
     <header>
         <h1>Alcohol Control</h1>
-        <div class="date-badge" id="current-date">--.--</div>
+        <div class="date" id="dt"></div>
     </header>
 
     <main>
-        <!-- DASHBOARD -->
-        <div id="s-dash" class="screen active">
-            <div class="who-alert">
-                <strong>Внимание:</strong> ВОЗ заявляет, что безопасной дозы алкоголя не существует.
-            </div>
-
+        <!-- DASH -->
+        <div id="s1" class="screen on">
+            <div class="warn"><b>ВОЗ:</b> Безопасной дозы не существует.</div>
             <div class="card">
-                <div class="section-header">
-                    <span class="section-title">Сегодня</span>
-                    <span style="font-size:12px; color:var(--primary); font-weight:600;" onclick="go('s-add')">+ Добавить</span>
+                <div class="title">СЕГОДНЯ</div>
+                <div class="grid">
+                    <div class="box"><span class="val" id="v1">0</span><span class="lbl">Граммов</span></div>
+                    <div class="box"><span class="val" id="v2" style="color:var(--g)">0</span><span class="lbl">Дней трезвости</span></div>
                 </div>
-                
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <div class="metric-val" id="d-val">0</div>
-                        <div class="metric-label">Граммов спирта</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-val" id="d-streak" style="color:var(--success)">0</div>
-                        <div class="metric-label">Дней трезвости</div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 20px;">
-                    <div class="status-text">
-                        <span>Цель: <b id="d-goal">20</b> г</span>
-                        <span id="d-status-text">Осталось: 20 г</span>
-                    </div>
-                    <div class="status-container">
-                        <div class="status-fill" id="d-bar"></div>
-                    </div>
+                <div style="margin-top:15px">
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:#666"><span>Цель: <b id="gl">20</b></span><span id="st">Ост: 20</span></div>
+                    <div class="bar-bg"><div class="bar-fill" id="bf"></div></div>
                 </div>
             </div>
-
             <div class="card">
-                <div class="section-header">
-                    <span class="section-title">Риски (30 дней)</span>
-                </div>
-                <div id="risk-container">
-                    <!-- JS inserts risk here -->
-                </div>
+                <div class="title">РИСК (30 ДНЕЙ)</div>
+                <div id="risk" style="font-size:13px; padding:5px;"></div>
+            </div>
+            <button class="btn" onclick="sw('s2')">+ Добавить</button>
+        </div>
+
+        <!-- ADD -->
+        <div id="s2" class="screen">
+            <div class="card">
+                <div class="title">ЗАПИСЬ</div>
+                <input type="hidden" id="eid">
+                <select id="it" onchange="af()"><option value="beer">Пиво (4%)</option><option value="wine">Вино (12%)</option><option value="vodka">Водка (40%)</option><option value="whiskey">Виски (40%)</option><option value="custom">Свое</option></select>
+                <input type="number" id="iv" placeholder="Объем (мл)" inputmode="decimal">
+                <input type="number" id="ia" placeholder="Крепость (%)" inputmode="decimal">
+                <div style="background:#f9f9f9;padding:10px;border-radius:8px;margin-bottom:15px;text-align:right;font-weight:bold" id="cr">0 г</div>
+                <button class="btn" onclick="sv()">Сохранить</button>
+                <button class="btn btn-sec" onclick="rf()">Отмена</button>
             </div>
         </div>
 
-        <!-- ADD SCREEN -->
-        <div id="s-add" class="screen">
+        <!-- STATS -->
+        <div id="s3" class="screen">
             <div class="card">
-                <div class="section-header"><span class="section-title">Новая запись</span></div>
-                <input type="hidden" id="edit-id">
-                
-                <div class="form-group">
-                    <label>Напиток</label>
-                    <select id="inp-type" onchange="autoFill()">
-                        <option value="beer">🍺 Пиво (4%)</option>
-                        <option value="wine">🍷 Вино (12%)</option>
-                        <option value="vodka">🥃 Водка (40%)</option>
-                        <option value="whiskey">🥃 Виски (40%)</option>
-                        <option value="custom">⚗️ Свой вариант</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Объем (мл)</label>
-                    <input type="number" id="inp-vol" placeholder="Например: 500" inputmode="decimal">
-                </div>
-
-                <div class="form-group">
-                    <label>Крепость (%)</label>
-                    <input type="number" id="inp-abv" placeholder="40" inputmode="decimal">
-                </div>
-
-                <div style="background:#F2F4F8; padding:12px; border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:13px; color:var(--text-sec);">Чистый спирт</span>
-                    <span style="font-size:18px; font-weight:700; color:var(--text-main);" id="calc-res">0 г</span>
-                </div>
-
-                <button class="btn-primary" onclick="saveEntry()">Сохранить</button>
-                <button class="btn-primary" style="background:#E5E5EA; color:#000; margin-top:10px; box-shadow:none;" onclick="resetForm()">Отмена</button>
+                <div class="title">ГРАФИК (7 ДНЕЙ)</div>
+                <div class="chart" id="ch"></div>
+            </div>
+            <div class="card">
+                <div class="title">ЦИФРЫ</div>
+                <div class="row"><span>Среднее</span><b id="sa">0</b></div>
+                <div class="row"><span>Максимум</span><b id="sm">0</b></div>
             </div>
         </div>
 
-        <!-- STATS SCREEN -->
-        <div id="s-stats" class="screen">
-            <div class="card">
-                <div class="section-header"><span class="section-title">Активность (7 дней)</span></div>
-                <div class="chart-row" id="chart-container">
-                    <!-- Bars generated by JS -->
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-header"><span class="section-title">Статистика</span></div>
-                <div class="history-item" style="border:none; padding:10px 0;">
-                    <div class="h-info"><h4>Среднее в день</h4></div>
-                    <div class="h-val"><span class="h-grams" id="st-avg">0 г</span></div>
-                </div>
-                <div class="history-item" style="border:none; padding:10px 0;">
-                    <div class="h-info"><h4>Максимум за день</h4></div>
-                    <div class="h-val"><span class="h-grams" id="st-max">0 г</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- HISTORY SCREEN -->
-        <div id="s-hist" class="screen">
-            <div class="card" style="min-height: 300px;">
-                <div class="section-header"><span class="section-title">История</span></div>
-                <div id="hist-list">
-                    <div style="text-align:center; padding:40px; color:#999;">Нет записей</div>
-                </div>
-            </div>
+        <!-- HIST -->
+        <div id="s4" class="screen">
+            <div class="card" id="hl"><div style="text-align:center;padding:20px;color:#999">Пусто</div></div>
         </div>
     </main>
 
     <nav>
-        <div class="nav-item active" onclick="go('s-dash')">
-            <span class="nav-icon">📊</span>Главная
-        </div>
-        <div class="nav-item" onclick="go('s-add')">
-            <span class="nav-icon">➕</span>Добавить
-        </div>
-        <div class="nav-item" onclick="go('s-hist')">
-            <span class="nav-icon"></span>История
-        </div>
-        <div class="nav-item" onclick="go('s-stats')">
-            <span class="nav-icon">📈</span>Стат
-        </div>
+        <div class="nav-i act" onclick="sw('s1')"><span class="nav-ic">📊</span>Главная</div>
+        <div class="nav-i" onclick="sw('s2')"><span class="nav-ic"></span>Добавить</div>
+        <div class="nav-i" onclick="sw('s4')"><span class="nav-ic"></span>История</div>
+        <div class="nav-i" onclick="sw('s3')"><span class="nav-ic"></span>Стат</div>
     </nav>
 </div>
 
 <script>
-    const DB = 'alc_v3_pro';
-    let data = { goal: 20, logs: [] };
-    
-    window.onload = () => {
-        const s = localStorage.getItem(DB);
-        if(s) data = JSON.parse(s);
-        
-        const d = new Date();
-        document.getElementById('current-date').innerText = d.toLocaleDateString('ru-RU', {day:'numeric', month:'short'});
-        
-        renderDash();
-        
-        ['inp-vol', 'inp-abv'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calc);
-        });
+    const K='alc_fast'; let D={g:20,l:[]};
+    window.onload=()=>{
+        const s=localStorage.getItem(K); if(s) D=JSON.parse(s);
+        document.getElementById('dt').innerText=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+        rd();
+        ['iv','ia'].forEach(i=>document.getElementById(i).addEventListener('input',c));
     };
-
-    function saveData() {
-        localStorage.setItem(DB, JSON.stringify(data));
-        renderDash();
+    
+    function sv(){ localStorage.setItem(K,JSON.stringify(D)); rd(); }
+    
+    function sw(id){
+        document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
+        document.querySelectorAll('.nav-i').forEach(e=>e.classList.remove('act'));
+        document.getElementById(id).classList.add('on');
+        const m={'s1':0,'s2':1,'s4':2,'s3':3};
+        document.querySelectorAll('.nav-i')[m[id]].classList.add('act');
+        if(id==='s1') rd(); if(id==='s3') rs(); if(id==='s4') rh(); if(id==='s2'&&!document.getElementById('eid').value) rf();
     }
 
-    function go(screenId) {
-        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        
-        document.getElementById(screenId).classList.add('active');
-        
-        // Map screen ID to nav index
-        const map = {'s-dash':0, 's-add':1, 's-hist':2, 's-stats':3};
-        document.querySelectorAll('.nav-item')[map[screenId]].classList.add('active');
-
-        if(screenId === 's-dash') renderDash();
-        if(screenId === 's-stats') renderStats();
-        if(screenId === 's-hist') renderHist();
-        if(screenId === 's-add' && !document.getElementById('edit-id').value) resetForm();
+    function af(){ const m={beer:4,wine:12,vodka:40,whiskey:40,custom:0}; const v=m[document.getElementById('it').value]; if(v) document.getElementById('ia').value=v; c(); }
+    function c(){ const v=parseFloat(document.getElementById('iv').value)||0; const a=parseFloat(document.getElementById('ia').value)||0; document.getElementById('cr').innerText=(v*a*0.00789).toFixed(1)+' г'; }
+    
+    function sv(){
+        const v=parseFloat(document.getElementById('iv').value), a=parseFloat(document.getElementById('ia').value);
+        if(!v||!a) return alert('Заполните поля');
+        const g=v*a*0.00789, n=new Date(), id=document.getElementById('eid').value;
+        const t=document.getElementById('it').options[document.getElementById('it').selectedIndex].text.split(' ')[0];
+        const e={id:id?parseInt(id):Date.now(), d:n.toISOString().split('T')[0], t:n.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), ty:t, v, a, g};
+        if(id){ const i=D.l.findIndex(x=>x.id==id); if(i>-1) D.l[i]=e; } else D.l.push(e);
+        sv(); rf(); sw('s1');
     }
-
-    function autoFill() {
-        const m = {beer:4, wine:12, vodka:40, whiskey:40, custom:0};
-        const v = m[document.getElementById('inp-type').value];
-        if(v) document.getElementById('inp-abv').value = v;
-        calc();
+    
+    function rf(){ document.getElementById('eid').value=''; document.getElementById('iv').value=''; document.getElementById('ia').value=''; document.getElementById('cr').innerText='0 г'; }
+    
+    function ed(id){
+        const l=D.l.find(x=>x.id==id); if(!l) return;
+        document.getElementById('eid').value=l.id; document.getElementById('iv').value=l.v; document.getElementById('ia').value=l.a; c(); sw('s2');
     }
-
-    function calc() {
-        const v = parseFloat(document.getElementById('inp-vol').value)||0;
-        const a = parseFloat(document.getElementById('inp-abv').value)||0;
-        document.getElementById('calc-res').innerText = (v * a * 0.00789).toFixed(1) + ' г';
+    
+    function dl(id){ if(confirm('Удалить?')){ D.l=D.l.filter(x=>x.id!=id); sv(); rh(); } }
+    
+    function rd(){
+        const td=new Date().toISOString().split('T')[0];
+        const sm=D.l.filter(l=>l.d===td).reduce((s,l)=>s+l.g,0);
+        document.getElementById('v1').innerText=sm.toFixed(1);
+        document.getElementById('gl').innerText=D.g;
+        
+        const bf=document.getElementById('bf'), st=document.getElementById('st');
+        const pct=Math.min((sm/D.g)*100,100);
+        bf.style.width=pct+'%'; bf.style.background=sm>D.g?'var(--r)':'var(--g)';
+        st.innerText=sm>D.g?`Превышено на ${Math.round(((sm-D.g)/D.g)*100)}%`:`Ост: ${(D.g-sm).toFixed(1)}`;
+        
+        // Streak
+        let str=0; const ds=[...new Set(D.l.map(l=>l.d))].sort().reverse();
+        if(ds.length&&ds[0]===td) str=0; else { str=1; let d=new Date(); d.setDate(d.getDate()-1); while(true){ if(ds.includes(d.toISOString().split('T')[0])) break; str++; d.setDate(d.getDate()-1); } }
+        document.getElementById('v2').innerText=str;
+        
+        // Risk
+        const d30=new Date(); d30.setDate(d30.getDate()-30);
+        const avg=D.l.filter(l=>new Date(l.d)>=d30).reduce((s,l)=>s+l.g,0)/30;
+        const rb=document.getElementById('risk');
+        if(avg>40) rb.innerHTML='<span style="color:var(--r);font-weight:bold">ВЫСОКИЙ РИСК</span><br>Цирроз, Инсульт';
+        else if(avg>20) rb.innerHTML='<span style="color:orange;font-weight:bold">СРЕДНИЙ РИСК</span><br>Печень, Давление';
+        else rb.innerHTML='<span style="color:var(--g);font-weight:bold">НИЗКИЙ РИСК</span><br>Минимальное влияние';
     }
-
-    function saveEntry() {
-        const v = parseFloat(document.getElementById('inp-vol').value);
-        const a = parseFloat(document.getElementById('inp-abv').value);
-        if(!v || !a) return alert('Заполните объем и крепость');
-        
-        const g = v * a * 0.00789;
-        const now = new Date();
-        const id = document.getElementById('edit-id').value;
-        const typeText = document.getElementById('inp-type').options[document.getElementById('inp-type').selectedIndex].text.split(' ')[1] || 'Напиток';
-        
-        const entry = {
-            id: id ? parseInt(id) : Date.now(),
-            date: now.toISOString().split('T')[0],
-            time: now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}),
-            type: typeText, vol: v, abv: a, grams: g
-        };
-
-        if(id) {
-            const idx = data.logs.findIndex(l => l.id == id);
-            if(idx > -1) data.logs[idx] = entry;
-        } else {
-            data.logs.push(entry);
+    
+    function rh(){
+        const l=document.getElementById('hl');
+        if(!D.l.length){ l.innerHTML='<div style="text-align:center;padding:20px;color:#999">Пусто</div>'; return; }
+        l.innerHTML=D.l.slice().reverse().map(x=>`<div class="row"><div><div style="font-weight:500">${x.ty}</div><div style="font-size:11px;color:#888">${x.d} ${x.t}</div></div><div style="text-align:right"><div style="font-weight:bold">${x.g.toFixed(1)} г</div><button class="act-btn e" onclick="ed(${x.id})">Изм</button> <button class="act-btn d" onclick="dl(${x.id})">Уд</button></div></div>`).join('');
+    }
+    
+    function rs(){
+        const ch=document.getElementById('ch'); ch.innerHTML='';
+        let mx=10; const vs=[];
+        for(let i=6;i>=0;i--){
+            const d=new Date(); d.setDate(d.getDate()-i);
+            const ds=d.toISOString().split('T')[0];
+            const v=D.l.filter(l=>l.d===ds).reduce((s,l)=>s+l.g,0);
+            vs.push(v); if(v>mx) mx=v;
         }
-        
-        saveData();
-        resetForm();
-        go('s-dash');
-    }
-
-    function resetForm() {
-        document.getElementById('edit-id').value = '';
-        document.getElementById('inp-vol').value = '';
-        document.getElementById('inp-abv').value = '';
-        document.getElementById('calc-res').innerText = '0 г';
-    }
-
-    function editEntry(id) {
-        const l = data.logs.find(x => x.id == id);
-        if(!l) return;
-        document.getElementById('edit-id').value = l.id;
-        document.getElementById('inp-vol').value = l.vol;
-        document.getElementById('inp-abv').value = l.abv;
-        
-        // Try to match select option
-        const select = document.getElementById('inp-type');
-        let found = false;
-        for(let i=0; i<select.options.length; i++) {
-            if(select.options[i].text.includes(l.type)) {
-                select.selectedIndex = i;
-                found = true;
-                break;
-            }
-        }
-        if(!found) select.value = 'custom';
-        
-        calc();
-        go('s-add');
-    }
-
-    function delEntry(id) {
-        if(confirm('Удалить запись?')) {
-            data.logs = data.logs.filter(x => x.id != id);
-            saveData();
-            renderHist();
-        }
-    }
-
-    function renderDash() {
-        const today = new Date().toISOString().split('T')[0];
-        const sum = data.logs.filter(l => l.date === today).reduce((s,l) => s + l.grams, 0);
-        
-        document.getElementById('d-val').innerText = sum.toFixed(1);
-        document.getElementById('d-goal').innerText = data.goal;
-        
-        // Progress Bar
-        const pct = Math.min((sum / data.goal) * 100, 100);
-        const bar = document.getElementById('d-bar');
-        bar.style.width = pct + '%';
-        
-        const statusText = document.getElementById('d-status-text');
-        if(sum > data.goal) {
-            bar.style.background = 'var(--danger)';
-            statusText.innerHTML = `<span style="color:var(--danger)">Превышено на ${Math.round(((sum-data.goal)/data.goal)*100)}%</span>`;
-        } else {
-            bar.style.background = 'var(--success)';
-            statusText.innerText = `Осталось: ${(data.goal - sum).toFixed(1)} г`;
-        }
-
-        // Streak Logic
-        let streak = 0;
-        const dates = [...new Set(data.logs.map(l => l.date))].sort().reverse();
-        if(dates.length && dates[0] === today) streak = 0;
-        else {
-            streak = 1;
-            let d = new Date(); d.setDate(d.getDate()-1);
-            while(true) {
-                if(dates.includes(d.toISOString().split('T')[0])) break;
-                streak++;
-                d.setDate(d.getDate()-1);
-            }
-        }
-        document.getElementById('d-streak').innerText = streak;
-
-        // Risk Logic
-        const d30 = new Date(); d30.setDate(d30.getDate()-30);
-        const avg30 = data.logs.filter(l => new Date(l.date) >= d30).reduce((s,l)=>s+l.grams,0) / 30;
-        const rBox = document.getElementById('risk-container');
-        
-        let riskClass = 'risk-low', riskTitle = 'Низкий риск', riskDesc = 'Минимальное влияние на организм', riskIcon = '🟢';
-        if(avg30 > 40) {
-            riskClass = 'risk-high'; riskTitle = 'Высокий риск'; riskDesc = 'Цирроз, Инсульт, Онкология'; riskIcon = '';
-        } else if(avg30 > 20) {
-            riskClass = 'risk-med'; riskTitle = 'Средний риск'; riskDesc = 'Печень, Давление, Тревожность'; riskIcon = '';
-        }
-        
-        rBox.innerHTML = `
-            <div class="risk-card ${riskClass}">
-                <div class="risk-icon">${riskIcon}</div>
-                <div class="risk-info">
-                    <h4>${riskTitle}</h4>
-                    <p>${riskDesc} (Ср. ${avg30.toFixed(1)} г/день)</p>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderHist() {
-        const list = document.getElementById('hist-list');
-        if(!data.logs.length) {
-            list.innerHTML = '<div style="text-align:center;padding:40px;color:#999">История пуста</div>';
-            return;
-        }
-        list.innerHTML = data.logs.slice().reverse().map(l => `
-            <div class="history-item">
-                <div class="h-info">
-                    <h4>${l.type}</h4>
-                    <span>${l.date} • ${l.time}</span>
-                </div>
-                <div class="h-val">
-                    <span class="h-grams">${l.grams.toFixed(1)} г</span>
-                    <div class="h-actions">
-                        <button class="btn-edit" onclick="editEntry(${l.id})">Изменить</button>
-                        <button class="btn-del" onclick="delEntry(${l.id})">Удалить</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderStats() {
-        const chart = document.getElementById('chart-container');
-        chart.innerHTML = '';
-        const days = 7;
-        let maxVal = 10; // Min scale
-        const vals = [];
-        const labels = [];
-        
-        for(let i=days-1; i>=0; i--) {
-            const d = new Date(); d.setDate(d.getDate()-i);
-            const ds = d.toISOString().split('T')[0];
-            const v = data.logs.filter(l => l.date === ds).reduce((s,l)=>s+l.grams,0);
-            vals.push(v);
-            labels.push(d.toLocaleDateString('ru-RU', {weekday:'short'}));
-            if(v > maxVal) maxVal = v;
-        }
-
-        vals.forEach((v, i) => {
-            const h = Math.max((v / maxVal) * 80, 2); // Min height 2px
-            const col = document.createElement('div');
-            col.className = 'chart-col';
-            
-            const bar = document.createElement('div');
-            bar.className = 'chart-bar' + (v > 0 ? ' active' : '');
-            bar.style.height = h + 'px';
-            
-            const dayLabel = document.createElement('div');
-            dayLabel.className = 'chart-day';
-            dayLabel.innerText = labels[i];
-            
-            col.appendChild(bar);
-            col.appendChild(dayLabel);
-            chart.appendChild(col);
+        vs.forEach((v,i)=>{
+            const h=(v/mx)*80;
+            const col=document.createElement('div'); col.className='col';
+            col.innerHTML=`<div class="b ${v>0?'on':''}" style="height:${h}px"></div><div class="d">${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][new Date(new Date().setDate(new Date().getDate()-(6-i))).getDay()]}</div>`;
+            ch.appendChild(col);
         });
-
-        const total = vals.reduce((a,b)=>a+b,0);
-        document.getElementById('st-avg').innerText = (total/7).toFixed(1) + ' г';
-        document.getElementById('st-max').innerText = Math.max(...vals).toFixed(1) + ' г';
+        const tot=vs.reduce((a,b)=>a+b,0);
+        document.getElementById('sa').innerText=(tot/7).toFixed(1)+' г';
+        document.getElementById('sm').innerText=Math.max(...vs).toFixed(1)+' г';
     }
 </script>
-
 </body>
 </html>
