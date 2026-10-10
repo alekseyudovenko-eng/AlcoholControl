@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Alcohol Control</title>
     
-    <!-- PWA Settings for Mobile App Feel -->
-    <meta name="theme-color" content="#f3f4f6">
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiQWxjb2hvbCBDb250cm9sIiwic2hvcnRfbmFtZSI6IkFsY29ob2wiLCJkZXNjcmlwdGlvbiI6IlRyYWNrZXIgYWxjb2hvbCBjb25zdW1wdGlvbiIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZjNmNGY2IiwidGhlbWVfY29sb3IiOiIjZjNmNGY2IiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vdmlhLnBsYWNlaG9sZC5jb20vMTkyLzI1NjhmZi8wMDAwMDA/dGV4dD1BQyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifV19">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiQWxjb2hvbCBDb250cm9sIiwic2hvcnRfbmFtZSI6IkFsY29ob2wiLCJkZXNjcmlwdGlvbiI6IlRyYWNrZXIgYWxjb2hvbCBjb25zdW1wdGlvbiIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjZmZmZmZmIiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vdmlhLnBsYWNlaG9sZC5jb20vMTkyLzI1NjhmZi8wMDAwMDA/dGV4dD1BQyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifV19">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
-            --bg-color: #f3f4f6;
+            --bg-color: #f9fafb;
             --card-bg: #ffffff;
             --text-primary: #111827;
             --text-secondary: #6b7280;
@@ -25,7 +25,6 @@
             --warning-color: #d97706;
             --danger-color: #dc2626;
             --border-color: #e5e7eb;
-            --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
         body {
@@ -37,23 +36,23 @@
             justify-content: center;
             min-height: 100vh;
             -webkit-tap-highlight-color: transparent;
+            /* Убираем лишние анимации скролла для производительности */
+            overflow-x: hidden;
         }
 
         .app-container {
             width: 100%;
             max-width: 480px;
             background: var(--card-bg);
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             height: 100vh;
             height: 100dvh;
             position: relative;
-            overflow: hidden;
         }
 
         header {
-            padding: 16px 20px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -61,104 +60,95 @@
             background: white;
             flex-shrink: 0;
         }
-        h1 { font-size: 1.1rem; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
-        .date-display { font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; }
+        h1 { font-size: 1.1rem; font-weight: 600; margin: 0; }
+        .date-display { font-size: 0.75rem; color: var(--text-secondary); }
 
         main {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 20px;
-            -webkit-overflow-scrolling: touch;
+            padding: 16px;
+            /* Аппаратное ускорение скролла */
+            transform: translateZ(0); 
         }
 
         .card {
             background: white;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
+            padding: 12px;
+            margin-bottom: 12px;
+            /* Убрали тень для скорости рендеринга */
+            box-shadow: none; 
         }
         
         .section-title {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-secondary);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             font-weight: 600;
         }
 
         .who-warning {
             background: #fff1f2;
-            border-left: 4px solid var(--danger-color);
-            padding: 12px 16px;
-            font-size: 0.85rem;
+            border-left: 3px solid var(--danger-color);
+            padding: 10px 12px;
+            font-size: 0.8rem;
             color: #881337;
-            margin-bottom: 20px;
-            line-height: 1.4;
-            border-radius: 0 4px 4px 0;
+            margin-bottom: 16px;
+            line-height: 1.3;
         }
 
         .metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
         .metric-box {
-            background: #f9fafb;
-            padding: 12px;
+            background: #f3f4f6;
+            padding: 10px;
             border-radius: 6px;
-            border: 1px solid var(--border-color);
         }
         
-        .metric-label { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; }
-        .metric-value { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); }
+        .metric-label { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 2px; }
+        .metric-value { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
         
         .status-badge {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
             font-weight: 600;
             width: 100%;
-            box-sizing: border-box;
-            justify-content: center;
             margin-top: 8px;
         }
-        .status-ok { background: #ecfdf5; color: var(--success-color); border: 1px solid #a7f3d0; }
-        .status-warn { background: #fef2f2; color: var(--danger-color); border: 1px solid #fecaca; }
+        .status-ok { background: #ecfdf5; color: var(--success-color); }
+        .status-warn { background: #fef2f2; color: var(--danger-color); }
 
         .risk-display {
-            border-left: 4px solid transparent;
-            padding: 12px;
+            border-left: 3px solid transparent;
+            padding: 10px;
             background: #f9fafb;
-            border-radius: 0 6px 6px 0;
-            transition: all 0.3s ease;
         }
         .risk-low { border-color: var(--success-color); background: #ecfdf5; }
         .risk-med { border-color: var(--warning-color); background: #fffbeb; }
         .risk-high { border-color: var(--danger-color); background: #fef2f2; }
 
-        .risk-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .risk-title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-        .risk-list { list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: var(--text-primary); }
-        .risk-list li { margin-bottom: 4px; display: flex; align-items: start; }
-        .risk-list li::before { content: "•"; margin-right: 8px; opacity: 0.6; }
+        .risk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .risk-title { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; }
+        .risk-list { list-style: none; padding: 0; margin: 0; font-size: 0.8rem; color: var(--text-primary); }
+        .risk-list li { margin-bottom: 2px; }
 
-        .form-group { margin-bottom: 14px; }
-        label { display: block; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 6px; font-weight: 500; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.8rem; color: var(--text-primary); margin-bottom: 4px; font-weight: 500; }
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 1rem;
@@ -166,39 +156,35 @@
             box-sizing: border-box;
             background: #fff;
         }
-        input:focus, select:focus { outline: none; border-color: var(--accent-color); }
 
         .btn-primary {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: var(--text-primary);
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 8px;
         }
-        .btn-primary:hover { opacity: 0.9; }
         .btn-secondary { background: white; border: 1px solid var(--border-color); color: var(--text-primary); margin-top: 8px; }
 
         .list-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid var(--border-color);
         }
         .list-item:last-child { border-bottom: none; }
         .item-info { display: flex; flex-direction: column; }
-        .item-name { font-weight: 500; font-size: 0.95rem; }
-        .item-meta { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
-        .item-value { font-weight: 600; font-size: 0.95rem; text-align: right; }
-        .item-actions { display: flex; gap: 12px; margin-left: 12px; }
-        .icon-btn { background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-secondary); font-size: 1.2rem; }
-        .icon-btn:hover { color: var(--accent-color); }
-        .icon-btn.delete:hover { color: var(--danger-color); }
+        .item-name { font-weight: 500; font-size: 0.9rem; }
+        .item-meta { font-size: 0.75rem; color: var(--text-secondary); }
+        .item-value { font-weight: 600; font-size: 0.9rem; text-align: right; }
+        .item-actions { display: flex; gap: 10px; margin-left: 10px; }
+        .icon-btn { background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-secondary); font-size: 1.1rem; }
 
         nav {
             border-top: 1px solid var(--border-color);
@@ -209,44 +195,33 @@
         }
         .nav-item {
             flex: 1;
-            padding: 12px 0;
+            padding: 10px 0;
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
         }
         .nav-item.active { color: var(--accent-color); font-weight: 600; }
-        .nav-icon { font-size: 1.2rem; margin-bottom: 2px; display: block; }
+        .nav-icon { font-size: 1.1rem; margin-bottom: 1px; display: block; }
 
-        .screen { display: none; animation: fadeIn 0.2s ease-out; }
+        .screen { display: none; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .stats-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
+        .stats-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
         .stats-tab {
             flex: 1;
-            padding: 8px;
+            padding: 6px;
             text-align: center;
             background: #f3f4f6;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
             cursor: pointer;
-            border: 1px solid transparent;
         }
-        .stats-tab.active {
-            background: white;
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            font-weight: 600;
-        }
+        .stats-tab.active { background: white; border: 1px solid var(--accent-color); color: var(--accent-color); font-weight: 600; }
     </style>
 </head>
 <body>
@@ -260,53 +235,44 @@
     <main>
         <!-- ЭКРАН 1: ГЛАВНАЯ -->
         <div id="screen-dashboard" class="screen active">
-            
             <div class="who-warning">
-                <strong>ВОЗ:</strong> Безопасной дозы алкоголя не существует. Любое потребление связано с определенным риском для здоровья.
+                <strong>ВОЗ:</strong> Безопасной дозы алкоголя не существует. Любое потребление связано с риском.
             </div>
 
             <div class="card">
                 <div class="section-title">СЕГОДНЯ</div>
-                
                 <div class="metrics-grid">
                     <div class="metric-box">
                         <div class="metric-label">Потреблено</div>
-                        <div class="metric-value"><span id="dash-consumed">0</span> <span style="font-size:0.8rem; font-weight:400;">г</span></div>
+                        <div class="metric-value"><span id="dash-consumed">0</span> г</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-label">Дней подряд без алкоголя</div>
+                        <div class="metric-label">Дней подряд трезвости</div>
                         <div class="metric-value" id="dash-dry-days">0</div>
                     </div>
                 </div>
-
-                <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 4px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                <div style="border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 4px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
                         <span>Цель: <strong id="dash-goal-val">20</strong> г</span>
-                        <span id="dash-remaining-text">Осталось: 20 г</span>
+                        <span id="dash-remaining-text">Ост: 20 г</span>
                     </div>
                     <div id="dash-status" class="status-badge status-ok">Ниже лимита</div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="section-title">РИСКИ ДЛЯ ЗДОРОВЬЯ (30 ДНЕЙ)</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px;">
-                    Оценка основана на среднем потреблении за последние 30 дней
-                </div>
-                <div id="dynamic-risk-container">
-                    <!-- JS вставит блок риска здесь -->
-                </div>
+                <div class="section-title">РИСКИ (30 ДНЕЙ)</div>
+                <div id="dynamic-risk-container"></div>
             </div>
 
             <button class="btn-primary" onclick="showScreen('add')">+ Добавить напиток</button>
         </div>
 
-        <!-- ЭКРАН 2: ДОБАВИТЬ / РЕДАКТИРОВАТЬ -->
+        <!-- ЭКРАН 2: ДОБАВИТЬ -->
         <div id="screen-add" class="screen">
             <div class="card">
                 <div class="section-title" id="form-title">Новая запись</div>
                 <input type="hidden" id="edit-id">
-
                 <div class="form-group">
                     <label>Тип напитка</label>
                     <select id="inp-type" onchange="autoFillABV()">
@@ -320,22 +286,18 @@
                         <option value="custom">Свой вариант</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Объем (мл)</label>
-                    <input type="number" id="inp-vol" placeholder="Например: 500" inputmode="decimal">
+                    <input type="number" id="inp-vol" placeholder="500" inputmode="decimal">
                 </div>
-
                 <div class="form-group">
                     <label>Крепость (%)</label>
                     <input type="number" id="inp-abv" placeholder="40" inputmode="decimal">
                 </div>
-
-                <div style="background: #f9fafb; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.9rem; display: flex; justify-content: space-between;">
+                <div style="background: #f3f4f6; padding: 8px; border-radius: 4px; margin-bottom: 12px; font-size: 0.85rem; display: flex; justify-content: space-between;">
                     <span style="color: var(--text-secondary);">Чистый спирт:</span>
                     <strong id="calc-preview">0 г</strong>
                 </div>
-
                 <button class="btn-primary" id="save-btn" onclick="saveDrink()">Сохранить</button>
                 <button class="btn-primary btn-secondary" id="cancel-btn" onclick="resetForm()" style="display:none;">Отмена</button>
             </div>
@@ -344,7 +306,7 @@
         <!-- ЭКРАН 3: ИСТОРИЯ -->
         <div id="screen-history" class="screen">
             <div class="card">
-                <div class="section-title">ИСТОРИЯ ПОТРЕБЛЕНИЯ</div>
+                <div class="section-title">ИСТОРИЯ</div>
                 <div id="history-list">
                     <div style="text-align: center; color: var(--text-secondary); padding: 20px;">Нет записей</div>
                 </div>
@@ -358,26 +320,24 @@
                 <div class="stats-tab" onclick="switchStatsTab('month')" id="tab-month">30 Дней</div>
                 <div class="stats-tab" onclick="switchStatsTab('year')" id="tab-year">Год</div>
             </div>
-
             <div class="card">
-                <div class="section-title">ДИНАМИКА ПОТРЕБЛЕНИЯ</div>
-                <div style="height: 200px;">
+                <div class="section-title">ГРАФИК</div>
+                <div style="height: 180px;">
                     <canvas id="periodChart"></canvas>
                 </div>
             </div>
-            
             <div class="card">
                 <div class="section-title">ПОКАЗАТЕЛИ (<span id="stat-period-label">7 ДНЕЙ</span>)</div>
                 <div class="list-item">
-                    <span class="item-name">Среднее потребление (в день)</span>
+                    <span class="item-name">Среднее (в день)</span>
                     <span class="item-value" id="stat-avg-period">0 г</span>
                 </div>
                 <div class="list-item">
-                    <span class="item-name">Всего потреблено</span>
+                    <span class="item-name">Всего</span>
                     <span class="item-value" id="stat-total-period">0 г</span>
                 </div>
                 <div class="list-item">
-                    <span class="item-name">Максимум за один день</span>
+                    <span class="item-name">Максимум за день</span>
                     <span class="item-value" id="stat-max-period">0 г</span>
                 </div>
             </div>
@@ -387,9 +347,8 @@
         <div id="screen-profile" class="screen">
             <div class="card">
                 <div class="section-title">НАСТРОЙКИ</div>
-                
                 <div class="form-group">
-                    <label>Страна проживания</label>
+                    <label>Страна</label>
                     <select id="prof-country">
                         <option value="IL">Израиль</option>
                         <option value="RU">Россия</option>
@@ -397,16 +356,13 @@
                         <option value="US">США</option>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>Дневная цель (г чистого спирта)</label>
+                    <label>Цель (г спирта/день)</label>
                     <input type="number" id="prof-goal" value="20">
                 </div>
-
-                <button class="btn-primary" onclick="saveProfile()">Сохранить настройки</button>
+                <button class="btn-primary" onclick="saveProfile()">Сохранить</button>
             </div>
         </div>
-
     </main>
 
     <nav>
@@ -429,39 +385,21 @@
 </div>
 
 <script>
-    // --- КОНФИГУРАЦИЯ ---
-    const DB_KEY = 'alcohol_business_v7';
-    
+    const DB_KEY = 'alcohol_opt_v1';
     const riskData = {
-        low: {
-            title: "НИЗКИЙ РИСК",
-            class: "risk-low",
-            items: ["Повышение давления", "Нарушение сна"]
-        },
-        medium: {
-            title: "СРЕДНИЙ РИСК",
-            class: "risk-med",
-            items: ["Болезни печени", "Депрессия", "Тревожность"]
-        },
-        high: {
-            title: "ВЫСОКИЙ РИСК",
-            class: "risk-high",
-            items: ["Цирроз", "Инсульт", "Инфаркт", "Онкологические заболевания"]
-        }
+        low: { title: "НИЗКИЙ РИСК", class: "risk-low", items: ["Давление", "Сон"] },
+        medium: { title: "СРЕДНИЙ РИСК", class: "risk-med", items: ["Печень", "Тревожность"] },
+        high: { title: "ВЫСОКИЙ РИСК", class: "risk-high", items: ["Цирроз", "Инсульт", "Онкология"] }
     };
 
-    let appState = {
-        profile: { country: 'IL', goal: 20 },
-        logs: []
-    };
+    let appState = { profile: { country: 'IL', goal: 20 }, logs: [] };
+    let currentStatsPeriod = 'week';
+    let chartInstance = null;
 
-    let currentStatsPeriod = 'week'; // week, month, year
-
-    // --- ИНИЦИАЛИЗАЦИЯ ---
     window.onload = function() {
         loadData();
         updateDate();
-        renderAll();
+        renderDashboard(); // Рендерим только главную при старте
         
         ['inp-vol', 'inp-abv'].forEach(id => {
             document.getElementById(id).addEventListener('input', calcPreview);
@@ -469,19 +407,17 @@
     };
 
     function updateDate() {
-        const options = { weekday: 'short', day: 'numeric', month: 'short' };
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ru-RU', options);
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
-    // --- НАВИГАЦИЯ ---
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         
         document.getElementById('screen-' + screenId).classList.add('active');
-        const navItem = document.getElementById('nav-' + screenId);
-        if(navItem) navItem.classList.add('active');
+        document.getElementById('nav-' + screenId).classList.add('active');
 
+        // Ленивая загрузка тяжелых экранов
         if(screenId === 'dashboard') renderDashboard();
         if(screenId === 'history') renderHistory();
         if(screenId === 'stats') renderStats(currentStatsPeriod);
@@ -495,7 +431,6 @@
         renderStats(period);
     }
 
-    // --- ЛОГИКА ДАННЫХ ---
     function loadData() {
         const stored = localStorage.getItem(DB_KEY);
         if(stored) appState = JSON.parse(stored);
@@ -505,59 +440,51 @@
 
     function saveData() {
         localStorage.setItem(DB_KEY, JSON.stringify(appState));
-        renderAll();
+        // Не вызываем renderAll(), чтобы не перерисовывать всё сразу
+        renderDashboard(); 
     }
 
     function saveProfile() {
         appState.profile.country = document.getElementById('prof-country').value;
         appState.profile.goal = parseFloat(document.getElementById('prof-goal').value);
         saveData();
-        alert('Настройки сохранены');
+        alert('Сохранено');
         showScreen('dashboard');
     }
 
-    // --- РАБОТА С ЗАПИСЯМИ ---
     function autoFillABV() {
-        const type = document.getElementById('inp-type').value;
         const map = { 'beer': 4, 'wine': 12, 'vodka': 40, 'whiskey': 40, 'rom': 40, 'gin': 40, 'cocktail': 10, 'custom': 0 };
-        if(map[type] !== 0) document.getElementById('inp-abv').value = map[type];
+        const val = map[document.getElementById('inp-type').value];
+        if(val !== 0) document.getElementById('inp-abv').value = val;
         calcPreview();
     }
 
     function calcPreview() {
         const vol = parseFloat(document.getElementById('inp-vol').value) || 0;
         const abv = parseFloat(document.getElementById('inp-abv').value) || 0;
-        const grams = (vol * (abv / 100) * 0.789).toFixed(1);
-        document.getElementById('calc-preview').innerText = grams + ' г';
+        document.getElementById('calc-preview').innerText = (vol * (abv / 100) * 0.789).toFixed(1) + ' г';
     }
 
     function saveDrink() {
         const id = document.getElementById('edit-id').value;
         const vol = parseFloat(document.getElementById('inp-vol').value);
         const abv = parseFloat(document.getElementById('inp-abv').value);
-        const typeSelect = document.getElementById('inp-type');
-        const typeText = typeSelect.options[typeSelect.selectedIndex].text;
-        
-        if(!vol || !abv) return alert('Заполните объем и крепость');
+        if(!vol || !abv) return alert('Заполните данные');
 
         const grams = vol * (abv / 100) * 0.789;
         const now = new Date();
+        const typeText = document.getElementById('inp-type').options[document.getElementById('inp-type').selectedIndex].text;
 
         if (id) {
-            const index = appState.logs.findIndex(l => l.id == id);
-            if (index !== -1) {
-                appState.logs[index] = { ...appState.logs[index], type: typeText, vol: vol, abv: abv, grams: grams };
-            }
+            const idx = appState.logs.findIndex(l => l.id == id);
+            if (idx !== -1) appState.logs[idx] = { ...appState.logs[idx], type: typeText, vol, abv, grams };
         } else {
             appState.logs.push({
-                id: Date.now(),
-                date: now.toISOString().split('T')[0],
-                timestamp: now.getTime(),
+                id: Date.now(), date: now.toISOString().split('T')[0], timestamp: now.getTime(),
                 timeStr: now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}),
-                type: typeText, vol: vol, abv: abv, grams: grams
+                type: typeText, vol, abv, grams
             });
         }
-
         saveData();
         resetForm();
         showScreen('dashboard');
@@ -569,15 +496,7 @@
         document.getElementById('edit-id').value = entry.id;
         document.getElementById('inp-vol').value = entry.vol;
         document.getElementById('inp-abv').value = entry.abv;
-        
-        const select = document.getElementById('inp-type');
-        let found = false;
-        for(let i=0; i<select.options.length; i++) {
-            if(select.options[i].text === entry.type) { select.selectedIndex = i; found = true; break; }
-        }
-        if(!found) select.value = 'custom';
-
-        document.getElementById('form-title').innerText = 'Редактирование записи';
+        document.getElementById('form-title').innerText = 'Редактирование';
         document.getElementById('save-btn').innerText = 'Обновить';
         document.getElementById('cancel-btn').style.display = 'block';
         calcPreview();
@@ -585,11 +504,10 @@
     }
 
     function deleteEntry(id) {
-        if(confirm('Удалить эту запись?')) {
+        if(confirm('Удалить?')) {
             appState.logs = appState.logs.filter(l => l.id != id);
             saveData();
             renderHistory();
-            renderDashboard();
         }
     }
 
@@ -604,12 +522,6 @@
         calcPreview();
     }
 
-    // --- ОТРИСОВКА ИНТЕРФЕЙСА ---
-
-    function renderAll() {
-        renderDashboard();
-    }
-
     function renderDashboard() {
         const today = new Date().toISOString().split('T')[0];
         const todayLogs = appState.logs.filter(l => l.date === today);
@@ -620,228 +532,126 @@
         document.getElementById('dash-goal-val').innerText = goal;
         
         const remaining = goal - totalGrams;
-        document.getElementById('dash-remaining-text').innerText = remaining >= 0 ? `Осталось: ${remaining.toFixed(1)} г` : `Превышено: ${Math.abs(remaining).toFixed(1)} г`;
+        document.getElementById('dash-remaining-text').innerText = remaining >= 0 ? `Ост: ${remaining.toFixed(1)} г` : `Превышено: ${Math.abs(remaining).toFixed(1)} г`;
 
         const statusEl = document.getElementById('dash-status');
         if(totalGrams > goal) {
             statusEl.className = 'status-badge status-warn';
-            statusEl.innerText = `Превышение на ${Math.round(((totalGrams-goal)/goal)*100)}%`;
+            statusEl.innerText = `Превышение ${Math.round(((totalGrams-goal)/goal)*100)}%`;
         } else {
             statusEl.className = 'status-badge status-ok';
-            statusEl.innerText = 'Ниже лимита';
+            statusEl.innerText = 'В норме';
         }
 
-        // --- РАСЧЕТ ДНЕЙ ПОДРЯД БЕЗ АЛКОГОЛЯ (STREAK) ---
+        // Расчет стрика (оптимизировано)
         let streak = 0;
-        
-        // Получаем уникальные даты, когда был алкоголь
-        const uniqueDrinkingDates = [...new Set(appState.logs.map(l => l.date))].sort().reverse(); // Сортируем от новых к старым
-        
-        // Если сегодня пили, стрик равен 0
-        if (uniqueDrinkingDates.length > 0 && uniqueDrinkingDates[0] === today) {
+        const uniqueDates = [...new Set(appState.logs.map(l => l.date))].sort().reverse();
+        if (uniqueDates.length > 0 && uniqueDates[0] === today) {
             streak = 0;
         } else {
-            // Начинаем считать со вчерашнего дня
-            let checkDate = new Date();
-            checkDate.setDate(checkDate.getDate() - 1); // Вчера
-            
-            // Если сегодня трезвый, начинаем счет с 1 (за сегодня)
-            streak = 1; 
-
-            // Идем назад во времени, пока находим дни без алкоголя
-            while (true) {
-                const dateStr = checkDate.toISOString().split('T')[0];
-                
-                // Проверяем, есть ли эта дата в списке выпивших
-                if (uniqueDrinkingDates.includes(dateStr)) {
-                    break; // Наткнулись на день с алкоголем, стоп
-                }
-                
+            streak = 1;
+            let d = new Date(); d.setDate(d.getDate() - 1);
+            while(true) {
+                if(uniqueDates.includes(d.toISOString().split('T')[0])) break;
                 streak++;
-                checkDate.setDate(checkDate.getDate() - 1); // Шаг назад
+                d.setDate(d.getDate() - 1);
             }
         }
-        
         document.getElementById('dash-dry-days').innerText = streak;
-
-        // Риски (всегда 30 дней)
         renderDynamicRisks();
     }
 
     function renderDynamicRisks() {
         const container = document.getElementById('dynamic-risk-container');
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
+        const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const recentLogs = appState.logs.filter(l => new Date(l.timestamp) >= thirtyDaysAgo);
-        const totalGrams30 = recentLogs.reduce((sum, l) => sum + l.grams, 0);
-        
-        // Среднее за 30 дней (делим на 30, а не на кол-во записей)
-        const avg30 = totalGrams30 / 30; 
+        const avg30 = recentLogs.reduce((sum, l) => sum + l.grams, 0) / 30;
 
-        let riskLevel = 'low';
-        if (avg30 > 40) riskLevel = 'high';
-        else if (avg30 > 20) riskLevel = 'medium';
-        else riskLevel = 'low';
-
-        const data = riskData[riskLevel];
+        let level = avg30 > 40 ? 'high' : (avg30 > 20 ? 'medium' : 'low');
+        const data = riskData[level];
         
-        let html = `<div class="risk-display ${data.class}">
-            <div class="risk-header">
-                <span class="risk-title">${data.title}</span>
-                <span style="font-size:0.7rem; opacity:0.7; font-weight:500;">Ср. ${avg30.toFixed(1)} г/день</span>
-            </div>
-            <ul class="risk-list">`;
-        
-        data.items.forEach(item => {
-            html += `<li>${item}</li>`;
-        });
-        
-        html += `</ul></div>`;
-        container.innerHTML = html;
+        container.innerHTML = `<div class="risk-display ${data.class}">
+            <div class="risk-header"><span class="risk-title">${data.title}</span><span style="font-size:0.7rem">Ср. ${avg30.toFixed(1)} г/д</span></div>
+            <ul class="risk-list">${data.items.map(i => `<li>• ${i}</li>`).join('')}</ul>
+        </div>`;
     }
 
     function renderHistory() {
-        const listContainer = document.getElementById('history-list');
-        listContainer.innerHTML = '';
-        const sortedLogs = [...appState.logs].sort((a,b) => b.timestamp - a.timestamp);
-
-        if(sortedLogs.length === 0) {
-            listContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Нет записей</div>';
+        const list = document.getElementById('history-list');
+        if(appState.logs.length === 0) {
+            list.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7280">Нет записей</div>';
             return;
         }
-
-        sortedLogs.forEach(log => {
+        // Используем DocumentFragment для быстрой вставки
+        const fragment = document.createDocumentFragment();
+        [...appState.logs].sort((a,b) => b.timestamp - a.timestamp).forEach(log => {
             const div = document.createElement('div');
             div.className = 'list-item';
-            div.innerHTML = `
-                <div class="item-info">
-                    <span class="item-name">${log.type}</span>
-                    <span class="item-meta">${log.date} • ${log.vol}мл (${log.abv}%)</span>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <div class="item-value">${log.grams.toFixed(1)} г</div>
-                    <div class="item-actions">
-                        <button class="icon-btn" onclick="editEntry(${log.id})">✎</button>
-                        <button class="icon-btn delete" onclick="deleteEntry(${log.id})">✕</button>
-                    </div>
-                </div>
-            `;
-            listContainer.appendChild(div);
+            div.innerHTML = `<div class="item-info"><span class="item-name">${log.type}</span><span class="item-meta">${log.date} ${log.timeStr}</span></div>
+            <div style="display:flex;align-items:center"><div class="item-value">${log.grams.toFixed(1)} г</div>
+            <div class="item-actions"><button class="icon-btn" onclick="editEntry(${log.id})">✎</button><button class="icon-btn delete" onclick="deleteEntry(${log.id})">✕</button></div></div>`;
+            fragment.appendChild(div);
         });
+        list.innerHTML = '';
+        list.appendChild(fragment);
     }
 
-    // --- НОВАЯ ЛОГИКА СТАТИСТИКИ ПО ПЕРИОДАМ ---
-    
     function getStatsForPeriod(daysBack) {
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - daysBack);
-        
-        // Фильтруем логи, которые попадают в диапазон [startDate, endDate]
-        const periodLogs = appState.logs.filter(l => {
-            const logDate = new Date(l.timestamp);
-            return logDate >= startDate && logDate <= endDate;
+        const end = new Date();
+        const start = new Date(); start.setDate(start.getDate() - daysBack);
+        const logs = appState.logs.filter(l => {
+            const d = new Date(l.timestamp);
+            return d >= start && d <= end;
         });
-
-        const totalGrams = periodLogs.reduce((sum, l) => sum + l.grams, 0);
-        
-        // Находим максимальное потребление за один день в этом периоде
-        const dailySums = {};
-        periodLogs.forEach(l => {
-            dailySums[l.date] = (dailySums[l.date] || 0) + l.grams;
-        });
-        const maxDayGrams = Object.values(dailySums).length > 0 ? Math.max(...Object.values(dailySums)) : 0;
-
-        // Среднее = Всего граммов / Количество дней в периоде (daysBack)
-        const avgGrams = totalGrams / daysBack;
-
-        return {
-            total: totalGrams,
-            avg: avgGrams,
-            max: maxDayGrams,
-            logs: periodLogs
-        };
+        const total = logs.reduce((s, l) => s + l.grams, 0);
+        const daily = {};
+        logs.forEach(l => daily[l.date] = (daily[l.date] || 0) + l.grams);
+        const max = Object.values(daily).length ? Math.max(...Object.values(daily)) : 0;
+        return { total, avg: total / daysBack, max };
     }
 
     function renderStats(period) {
-        let days = 7;
-        let label = "7 ДНЕЙ";
-        if (period === 'month') { days = 30; label = "30 ДНЕЙ"; }
-        if (period === 'year') { days = 365; label = "ГОД"; }
-
-        document.getElementById('stat-period-label').innerText = label;
-
+        const days = period === 'week' ? 7 : (period === 'month' ? 30 : 365);
+        document.getElementById('stat-period-label').innerText = period === 'week' ? "7 ДНЕЙ" : (period === 'month' ? "30 ДНЕЙ" : "ГОД");
+        
         const stats = getStatsForPeriod(days);
-
         document.getElementById('stat-avg-period').innerText = stats.avg.toFixed(1) + ' г/день';
         document.getElementById('stat-total-period').innerText = stats.total.toFixed(1) + ' г';
         document.getElementById('stat-max-period').innerText = stats.max.toFixed(1) + ' г';
-
-        renderPeriodChart(period, days);
+        
+        updateChart(period, days);
     }
 
-    let periodChartInst = null;
-    function renderPeriodChart(period, days) {
+    function updateChart(period, days) {
         const ctx = document.getElementById('periodChart').getContext('2d');
+        const labels = [], values = [];
         
-        const labels = [];
-        const values = [];
-        
-        // Генерируем метки для каждого дня в периоде
         for(let i = days - 1; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
+            const d = new Date(); d.setDate(d.getDate() - i);
             const dateStr = d.toISOString().split('T')[0];
-            
-            let labelText = d.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
-            if (period === 'year') {
-                 if (i % 30 !== 0 && i !== 0) labelText = ''; 
-            }
-            
-            labels.push(labelText);
-
-            const daySum = appState.logs
-                .filter(l => l.date === dateStr)
-                .reduce((s, l) => s + l.grams, 0);
-            
-            values.push(daySum);
+            labels.push(period === 'year' && i % 30 !== 0 && i !== 0 ? '' : d.toLocaleDateString('ru-RU', {day:'numeric', month:'short'}));
+            values.push(appState.logs.filter(l => l.date === dateStr).reduce((s,l)=>s+l.grams, 0));
         }
 
-        if(periodChartInst) periodChartInst.destroy();
-
-        periodChartInst = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Потребление (г)',
-                    data: values,
-                    backgroundColor: '#2563eb',
-                    borderRadius: 2,
-                    barPercentage: 0.8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
-                    x: { 
-                        grid: { display: false },
-                        ticks: {
-                            maxTicksLimit: period === 'year' ? 12 : 10,
-                            callback: function(val, index) {
-                                return this.getLabelForValue(val);
-                            }
-                        }
-                    }
+        if(chartInstance) {
+            chartInstance.data.labels = labels;
+            chartInstance.data.datasets[0].data = values;
+            chartInstance.update();
+        } else {
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: values, backgroundColor: '#2563eb', borderRadius: 2 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
                 }
-            }
-        });
+            });
+        }
     }
-
 </script>
 
 </body>
