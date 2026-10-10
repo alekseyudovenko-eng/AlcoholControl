@@ -6,7 +6,6 @@
     <title>Alcohol Control</title>
     <meta name="theme-color" content="#ffffff">
     <style>
-        /* Максимальная производительность: системные шрифты, минимум теней */
         :root { --p: #007AFF; --g: #34C759; --r: #FF3B30; --bg: #F2F2F7; --c: #FFFFFF; --t: #000000; --s: #8E8E93; }
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--t); -webkit-tap-highlight-color: transparent; }
         
@@ -46,7 +45,6 @@
         .screen { display: none; }
         .screen.on { display: block; }
 
-        /* Легкий график на CSS */
         .chart { display: flex; align-items: flex-end; justify-content: space-between; height: 100px; padding-top: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
         .col { display: flex; flex-direction: column; align-items: center; width: 12%; }
         .b { width: 8px; background: #E5E5EA; border-radius: 4px; transition: height 0.3s; }
@@ -56,7 +54,7 @@
         .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
         .row:last-child { border: none; }
         .act-btn { background: none; border: none; font-size: 12px; padding: 5px; cursor: pointer; }
-        .e { color: var(--p); } .d { color: var(--r); }
+        .e { color: var(--p); } .del { color: var(--r); }
     </style>
 </head>
 <body>
@@ -86,7 +84,7 @@
                 <div class="title">РИСК (30 ДНЕЙ)</div>
                 <div id="risk" style="font-size:13px; padding:5px;"></div>
             </div>
-            <button class="btn" onclick="sw('s2')">+ Добавить</button>
+            <button class="btn" onclick="go('s2')">+ Добавить</button>
         </div>
 
         <!-- ADD -->
@@ -98,8 +96,8 @@
                 <input type="number" id="iv" placeholder="Объем (мл)" inputmode="decimal">
                 <input type="number" id="ia" placeholder="Крепость (%)" inputmode="decimal">
                 <div style="background:#f9f9f9;padding:10px;border-radius:8px;margin-bottom:15px;text-align:right;font-weight:bold" id="cr">0 г</div>
-                <button class="btn" onclick="sv()">Сохранить</button>
-                <button class="btn btn-sec" onclick="rf()">Отмена</button>
+                <button class="btn" onclick="saveEntry()">Сохранить</button>
+                <button class="btn btn-sec" onclick="resetForm()">Отмена</button>
             </div>
         </div>
 
@@ -123,101 +121,215 @@
     </main>
 
     <nav>
-        <div class="nav-i act" onclick="sw('s1')"><span class="nav-ic">📊</span>Главная</div>
-        <div class="nav-i" onclick="sw('s2')"><span class="nav-ic"></span>Добавить</div>
-        <div class="nav-i" onclick="sw('s4')"><span class="nav-ic"></span>История</div>
-        <div class="nav-i" onclick="sw('s3')"><span class="nav-ic"></span>Стат</div>
+        <div class="nav-i act" onclick="go('s1')"><span class="nav-ic"></span>Главная</div>
+        <div class="nav-i" onclick="go('s2')"><span class="nav-ic"></span>Добавить</div>
+        <div class="nav-i" onclick="go('s4')"><span class="nav-ic"></span>История</div>
+        <div class="nav-i" onclick="go('s3')"><span class="nav-ic"></span>Стат</div>
     </nav>
 </div>
 
 <script>
-    const K='alc_fast'; let D={g:20,l:[]};
+    const K='alc_safe_v3'; 
+    let D={g:20,l:[]}; 
+    
     window.onload=()=>{
-        const s=localStorage.getItem(K); if(s) D=JSON.parse(s);
+        const s=localStorage.getItem(K); 
+        if(s) try { D=JSON.parse(s); } catch(e){ D={g:20,l:[]}; }
         document.getElementById('dt').innerText=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-        rd();
-        ['iv','ia'].forEach(i=>document.getElementById(i).addEventListener('input',c));
+        renderDash();
+        ['iv','ia'].forEach(i=>document.getElementById(i).addEventListener('input',calcPreview));
     };
     
-    function sv(){ localStorage.setItem(K,JSON.stringify(D)); rd(); }
+    function saveToLS(){ 
+        localStorage.setItem(K, JSON.stringify(D)); 
+        // Важно: здесь мы НЕ вызываем renderDash(), чтобы избежать циклов при навигации
+    }
     
-    function sw(id){
+    function go(id){
         document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
         document.querySelectorAll('.nav-i').forEach(e=>e.classList.remove('act'));
         document.getElementById(id).classList.add('on');
+        
         const m={'s1':0,'s2':1,'s4':2,'s3':3};
         document.querySelectorAll('.nav-i')[m[id]].classList.add('act');
-        if(id==='s1') rd(); if(id==='s3') rs(); if(id==='s4') rh(); if(id==='s2'&&!document.getElementById('eid').value) rf();
+        
+        // Вызываем рендер только для конкретного экрана
+        if(id==='s1') renderDash(); 
+        if(id==='s3') renderStats(); 
+        if(id==='s4') renderHist(); 
+        if(id==='s2' && !document.getElementById('eid').value) resetForm();
     }
 
-    function af(){ const m={beer:4,wine:12,vodka:40,whiskey:40,custom:0}; const v=m[document.getElementById('it').value]; if(v) document.getElementById('ia').value=v; c(); }
-    function c(){ const v=parseFloat(document.getElementById('iv').value)||0; const a=parseFloat(document.getElementById('ia').value)||0; document.getElementById('cr').innerText=(v*a*0.00789).toFixed(1)+' г'; }
+    function af(){ 
+        const m={beer:4,wine:12,vodka:40,whiskey:40,custom:0}; 
+        const v=m[document.getElementById('it').value]; 
+        if(v) document.getElementById('ia').value=v; 
+        calcPreview(); 
+    }
     
-    function sv(){
-        const v=parseFloat(document.getElementById('iv').value), a=parseFloat(document.getElementById('ia').value);
-        if(!v||!a) return alert('Заполните поля');
-        const g=v*a*0.00789, n=new Date(), id=document.getElementById('eid').value;
+    function calcPreview(){ 
+        const v=parseFloat(document.getElementById('iv').value)||0; 
+        const a=parseFloat(document.getElementById('ia').value)||0; 
+        document.getElementById('cr').innerText=(v*a*0.00789).toFixed(1)+' г'; 
+    }
+    
+    function saveEntry(){
+        const v=parseFloat(document.getElementById('iv').value);
+        const a=parseFloat(document.getElementById('ia').value);
+        if(!v||!a) return alert('Заполните объем и крепость');
+        
+        const g=v*a*0.00789; 
+        const n=new Date(); 
+        const id=document.getElementById('eid').value;
         const t=document.getElementById('it').options[document.getElementById('it').selectedIndex].text.split(' ')[0];
-        const e={id:id?parseInt(id):Date.now(), d:n.toISOString().split('T')[0], t:n.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), ty:t, v, a, g};
-        if(id){ const i=D.l.findIndex(x=>x.id==id); if(i>-1) D.l[i]=e; } else D.l.push(e);
-        sv(); rf(); sw('s1');
+        
+        const e={
+            id: id ? parseInt(id) : Date.now(), 
+            d: n.toISOString().split('T')[0], 
+            t: n.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), 
+            ty: t, v, a, g
+        };
+        
+        if(id){ 
+            const i=D.l.findIndex(x=>x.id==id); 
+            if(i>-1) D.l[i]=e; 
+        } else {
+            D.l.push(e); 
+        }
+        
+        saveToLS(); 
+        resetForm(); 
+        go('s1'); // Переход на главный экран запустит renderDash()
     }
     
-    function rf(){ document.getElementById('eid').value=''; document.getElementById('iv').value=''; document.getElementById('ia').value=''; document.getElementById('cr').innerText='0 г'; }
-    
-    function ed(id){
-        const l=D.l.find(x=>x.id==id); if(!l) return;
-        document.getElementById('eid').value=l.id; document.getElementById('iv').value=l.v; document.getElementById('ia').value=l.a; c(); sw('s2');
+    function resetForm(){ 
+        document.getElementById('eid').value=''; 
+        document.getElementById('iv').value=''; 
+        document.getElementById('ia').value=''; 
+        document.getElementById('cr').innerText='0 г'; 
     }
     
-    function dl(id){ if(confirm('Удалить?')){ D.l=D.l.filter(x=>x.id!=id); sv(); rh(); } }
+    function editEntry(id){
+        const l=D.l.find(x=>x.id==id); 
+        if(!l) return;
+        document.getElementById('eid').value=l.id; 
+        document.getElementById('iv').value=l.v; 
+        document.getElementById('ia').value=l.a; 
+        calcPreview(); 
+        go('s2');
+    }
     
-    function rd(){
+    function deleteEntry(id){ 
+        if(confirm('Удалить?')){ 
+            D.l=D.l.filter(x=>x.id!=id); 
+            saveToLS(); 
+            renderHist(); 
+            renderDash(); // Обновляем цифры на главной, если удалили сегодняшнюю запись
+        } 
+    }
+    
+    function renderDash(){
         const td=new Date().toISOString().split('T')[0];
         const sm=D.l.filter(l=>l.d===td).reduce((s,l)=>s+l.g,0);
+        
         document.getElementById('v1').innerText=sm.toFixed(1);
         document.getElementById('gl').innerText=D.g;
         
         const bf=document.getElementById('bf'), st=document.getElementById('st');
         const pct=Math.min((sm/D.g)*100,100);
-        bf.style.width=pct+'%'; bf.style.background=sm>D.g?'var(--r)':'var(--g)';
-        st.innerText=sm>D.g?`Превышено на ${Math.round(((sm-D.g)/D.g)*100)}%`:`Ост: ${(D.g-sm).toFixed(1)}`;
         
-        // Streak
-        let str=0; const ds=[...new Set(D.l.map(l=>l.d))].sort().reverse();
-        if(ds.length&&ds[0]===td) str=0; else { str=1; let d=new Date(); d.setDate(d.getDate()-1); while(true){ if(ds.includes(d.toISOString().split('T')[0])) break; str++; d.setDate(d.getDate()-1); } }
+        bf.style.width=pct+'%'; 
+        bf.style.background=sm>D.g?'var(--r)':'var(--g)';
+        st.innerText=sm>D.g ? `Превышено на ${Math.round(((sm-D.g)/D.g)*100)}%` : `Ост: ${(D.g-sm).toFixed(1)}`;
+        
+        // Streak calculation (Safe Loop)
+        let str=0; 
+        const ds=[...new Set(D.l.map(l=>l.d))].sort().reverse();
+        
+        // Если сегодня пили - стрик 0
+        if(ds.length > 0 && ds[0] === td) {
+            str = 0;
+        } else {
+            // Иначе начинаем считать со вчера
+            str = 1; 
+            let d=new Date(); 
+            d.setDate(d.getDate()-1); 
+            
+            // Защита от вечного цикла: максимум 365 дней назад
+            let safetyCounter = 0;
+            while(safetyCounter < 365){ 
+                const dateStr = d.toISOString().split('T')[0];
+                if(ds.includes(dateStr)) break; // Наткнулись на день с алкоголем
+                str++; 
+                d.setDate(d.getDate()-1); 
+                safetyCounter++;
+            } 
+        }
         document.getElementById('v2').innerText=str;
         
-        // Risk
+        // Risk calculation
         const d30=new Date(); d30.setDate(d30.getDate()-30);
-        const avg=D.l.filter(l=>new Date(l.d)>=d30).reduce((s,l)=>s+l.g,0)/30;
+        const recentLogs = D.l.filter(l=> new Date(l.d) >= d30);
+        const avg = recentLogs.length > 0 ? recentLogs.reduce((s,l)=>s+l.g,0)/30 : 0;
+        
         const rb=document.getElementById('risk');
         if(avg>40) rb.innerHTML='<span style="color:var(--r);font-weight:bold">ВЫСОКИЙ РИСК</span><br>Цирроз, Инсульт';
         else if(avg>20) rb.innerHTML='<span style="color:orange;font-weight:bold">СРЕДНИЙ РИСК</span><br>Печень, Давление';
         else rb.innerHTML='<span style="color:var(--g);font-weight:bold">НИЗКИЙ РИСК</span><br>Минимальное влияние';
     }
     
-    function rh(){
+    function renderHist(){
         const l=document.getElementById('hl');
-        if(!D.l.length){ l.innerHTML='<div style="text-align:center;padding:20px;color:#999">Пусто</div>'; return; }
-        l.innerHTML=D.l.slice().reverse().map(x=>`<div class="row"><div><div style="font-weight:500">${x.ty}</div><div style="font-size:11px;color:#888">${x.d} ${x.t}</div></div><div style="text-align:right"><div style="font-weight:bold">${x.g.toFixed(1)} г</div><button class="act-btn e" onclick="ed(${x.id})">Изм</button> <button class="act-btn d" onclick="dl(${x.id})">Уд</button></div></div>`).join('');
+        if(!D.l.length){ 
+            l.innerHTML='<div style="text-align:center;padding:20px;color:#999">Пусто</div>'; 
+            return; 
+        }
+        // Ограничиваем вывод последними 50 записями для скорости
+        const recent = D.l.slice().reverse().slice(0, 50);
+        l.innerHTML=recent.map(x=>`
+            <div class="row">
+                <div>
+                    <div style="font-weight:500">${x.ty}</div>
+                    <div style="font-size:11px;color:#888">${x.d} ${x.t}</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-weight:bold">${x.g.toFixed(1)} г</div>
+                    <button class="act-btn e" onclick="editEntry(${x.id})">Изм</button> 
+                    <button class="act-btn del" onclick="deleteEntry(${x.id})">Уд</button>
+                </div>
+            </div>
+        `).join('');
     }
     
-    function rs(){
-        const ch=document.getElementById('ch'); ch.innerHTML='';
-        let mx=10; const vs=[];
+    function renderStats(){
+        const ch=document.getElementById('ch'); 
+        ch.innerHTML='';
+        let mx=10; 
+        const vs=[];
+        const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+        
         for(let i=6;i>=0;i--){
-            const d=new Date(); d.setDate(d.getDate()-i);
+            const d=new Date(); 
+            d.setDate(d.getDate()-i);
             const ds=d.toISOString().split('T')[0];
             const v=D.l.filter(l=>l.d===ds).reduce((s,l)=>s+l.g,0);
-            vs.push(v); if(v>mx) mx=v;
+            vs.push(v); 
+            if(v>mx) mx=v;
         }
+        
         vs.forEach((v,i)=>{
             const h=(v/mx)*80;
-            const col=document.createElement('div'); col.className='col';
-            col.innerHTML=`<div class="b ${v>0?'on':''}" style="height:${h}px"></div><div class="d">${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][new Date(new Date().setDate(new Date().getDate()-(6-i))).getDay()]}</div>`;
+            const col=document.createElement('div'); 
+            col.className='col';
+            
+            const dateForLabel = new Date();
+            dateForLabel.setDate(dateForLabel.getDate() - (6-i));
+            const dayName = days[dateForLabel.getDay()];
+
+            col.innerHTML=`<div class="b ${v>0?'on':''}" style="height:${h}px"></div><div class="d">${dayName}</div>`;
             ch.appendChild(col);
         });
+        
         const tot=vs.reduce((a,b)=>a+b,0);
         document.getElementById('sa').innerText=(tot/7).toFixed(1)+' г';
         document.getElementById('sm').innerText=Math.max(...vs).toFixed(1)+' г';
