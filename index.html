@@ -4,161 +4,396 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Alcohol Control</title>
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#F5F5F7">
     <style>
-        :root { --p: #007AFF; --g: #34C759; --r: #FF3B30; --bg: #F2F2F7; --c: #FFFFFF; --t: #000000; --s: #8E8E93; }
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--t); -webkit-tap-highlight-color: transparent; }
+        :root { 
+            --primary: #007AFF; 
+            --success: #34C759; 
+            --danger: #FF3B30; 
+            --bg: #F5F5F7; 
+            --card: #FFFFFF; 
+            --text: #1D1D1F; 
+            --sub: #86868B; 
+            --border: #E5E5EA;
+            --sidebar-width: 80px;
+        }
         
-        .app { max-width: 500px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--c); box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
-        header { padding: 15px 20px; border-bottom: 1px solid #E5E5EA; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(5px); }
-        h1 { font-size: 20px; margin: 0; font-weight: 700; }
-        .date { font-size: 13px; color: var(--s); font-weight: 500; }
+        body { 
+            margin: 0; padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            height: 100vh; overflow: hidden;
+        }
+        
+        .app-layout {
+            display: flex;
+            height: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card);
+            box-shadow: 0 0 40px rgba(0,0,0,0.05);
+        }
 
-        main { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 80px; }
-        
-        .card { background: var(--c); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #E5E5EA; }
-        .title { font-size: 12px; text-transform: uppercase; color: var(--s); font-weight: 600; margin-bottom: 10px; letter-spacing: 0.5px; }
-        
-        .warn { background: #FFF0F0; border-left: 4px solid var(--r); padding: 10px 12px; font-size: 13px; color: #555; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
-        
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .box { background: #F9F9F9; padding: 12px; border-radius: 10px; text-align: center; }
-        .val { font-size: 22px; font-weight: 700; display: block; margin-bottom: 2px; }
-        .lbl { font-size: 11px; color: var(--s); }
+        /* Main Content Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
 
-        .bar-bg { height: 6px; background: #E5E5EA; border-radius: 3px; margin-top: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; background: var(--g); width: 0%; transition: width 0.3s linear; }
+        header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
         
-        .btn { width: 100%; padding: 14px; background: var(--p); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 5px; }
-        .btn:active { opacity: 0.7; }
-        .btn-sec { background: #E5E5EA; color: #000; margin-top: 10px; }
+        h1 { font-size: 32px; margin: 0; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+        .date-badge { 
+            font-size: 14px; color: var(--sub); font-weight: 600; 
+            background: #F2F2F7; padding: 6px 12px; border-radius: 20px; 
+        }
 
-        input, select { width: 100%; padding: 12px; border: 1px solid #E5E5EA; border-radius: 10px; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; background: #FAFAFA; }
-        input:focus { outline: none; border-color: var(--p); background: #fff; }
+        /* Cards */
+        .card { 
+            background: var(--card); 
+            border-radius: 24px; 
+            padding: 24px; 
+            margin-bottom: 20px; 
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+        }
+        
+        .section-title { 
+            font-size: 14px; text-transform: uppercase; color: var(--sub); 
+            font-weight: 700; margin-bottom: 16px; letter-spacing: 0.5px; 
+        }
 
-        nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); border-top: 1px solid #E5E5EA; display: flex; justify-content: space-around; padding: 10px 0 20px; max-width: 500px; margin: 0 auto; z-index: 20; backdrop-filter: blur(10px); }
-        .nav-i { flex: 1; text-align: center; font-size: 10px; color: var(--s); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .nav-i.act { color: var(--p); font-weight: 600; }
-        .nav-ic { font-size: 24px; margin-bottom: 2px; display: block; } /* Увеличил размер иконок */
+        .warn { 
+            background: #FFF5F5; border: 1px solid #FFE5E5;
+            color: #D00000; padding: 16px; border-radius: 16px;
+            font-size: 14px; line-height: 1.5; margin-bottom: 24px;
+            display: flex; align-items: start; gap: 12px;
+        }
+        .warn-icon { font-size: 20px; }
 
-        .screen { display: none; }
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .metric-box { 
+            background: #F9F9FB; padding: 20px; border-radius: 20px; 
+            text-align: center; border: 1px solid rgba(0,0,0,0.02);
+        }
+        .metric-val { font-size: 32px; font-weight: 800; display: block; margin-bottom: 4px; color: var(--text); }
+        .metric-lbl { font-size: 12px; color: var(--sub); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .progress-wrap { margin-top: 20px; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+        .progress-bg { height: 10px; background: #E5E5EA; border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+        .btn-primary { 
+            width: 100%; padding: 18px; background: var(--text); color: #fff; 
+            border: none; border-radius: 18px; font-size: 17px; font-weight: 600; 
+            cursor: pointer; margin-top: 10px; transition: all 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-secondary { background: #F2F2F7; color: var(--text); margin-top: 12px; }
+
+        input, select { 
+            width: 100%; padding: 16px; border: 1px solid var(--border); 
+            border-radius: 16px; font-size: 17px; margin-bottom: 16px; 
+            background: #FAFAFA; font-family: inherit; transition: border-color 0.2s;
+        }
+        input:focus, select:focus { border-color: var(--primary); background: #fff; }
+
+        /* Sidebar Navigation (Right Side) */
+        nav {
+            width: var(--sidebar-width);
+            background: #FAFAFA;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 20px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 0;
+            cursor: pointer;
+            color: var(--sub);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+            width: 4px; background: var(--primary); border-radius: 0 4px 4px 0;
+        }
+
+        .nav-icon svg { width: 28px; height: 28px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-label { font-size: 10px; font-weight: 600; margin-top: 6px; letter-spacing: 0.5px; }
+
+        /* Screens */
+        .screen { display: none; animation: fadeIn 0.4s ease; }
         .screen.on { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .chart { display: flex; align-items: flex-end; justify-content: space-between; height: 100px; padding-top: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
-        .col { display: flex; flex-direction: column; align-items: center; width: 12%; }
-        .b { width: 8px; background: #E5E5EA; border-radius: 4px; transition: height 0.3s; }
-        .b.on { background: var(--p); }
-        .d { font-size: 9px; color: var(--s); margin-top: 4px; }
+        /* Facts & Charts */
+        .fact-card { background: linear-gradient(135deg, #F0F4FF 0%, #FFFFFF 100%); border: 1px solid #DDE4FF; }
+        .fact-title { font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 15px; }
+        .fact-text { font-size: 14px; line-height: 1.6; color: #444; }
 
-        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .row:last-child { border: none; }
-        .act-btn { background: none; border: none; font-size: 12px; padding: 5px; cursor: pointer; }
-        .e { color: var(--p); } .del { color: var(--r); }
+        .chart-row { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 20px; border-bottom: 1px solid #eee; margin-bottom: 10px; }
+        .chart-col { display: flex; flex-direction: column; align-items: center; width: 12%; }
+        .chart-bar { width: 8px; background: #E5E5EA; border-radius: 4px; transition: height 0.5s; }
+        .chart-bar.active { background: var(--primary); }
+        .chart-day { font-size: 11px; color: var(--sub); margin-top: 8px; font-weight: 500; }
+
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
+        .list-info h4 { margin: 0; font-size: 16px; font-weight: 600; }
+        .list-info span { font-size: 13px; color: var(--sub); }
+        .list-actions button { background: none; border: none; font-size: 14px; padding: 6px 10px; cursor: pointer; font-weight: 600; border-radius: 8px; }
+        .btn-edit { color: var(--primary); background: rgba(0,122,255,0.1); } 
+        .btn-del { color: var(--danger); background: rgba(255,59,48,0.1); }
+
+        /* Mobile Adaptation */
+        @media (max-width: 600px) {
+            .app-layout { flex-direction: column-reverse; }
+            nav { 
+                width: 100%; height: 70px; flex-direction: row; 
+                border-left: none; border-top: 1px solid var(--border);
+                padding: 0; justify-content: space-around;
+            }
+            .nav-item { padding: 10px 0; }
+            .nav-item.active::before { 
+                width: 40px; height: 4px; left: 50%; transform: translateX(-50%); 
+                top: 0; bottom: auto; border-radius: 0 0 4px 4px;
+            }
+            main { padding: 20px; padding-bottom: 90px; }
+            h1 { font-size: 28px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="app">
-    <header>
-        <h1>Alcohol Control</h1>
-        <div class="date" id="dt"></div>
-    </header>
-
+<div class="app-layout">
     <main>
-        <!-- DASH -->
+        <header>
+            <h1>Alcohol<br>Control</h1>
+            <div class="date-badge" id="dt"></div>
+        </header>
+
+        <!-- DASHBOARD -->
         <div id="s1" class="screen on">
-            <div class="warn"><b>ВОЗ:</b> Безопасной дозы не существует.</div>
+            <div class="warn">
+                <span class="warn-icon">⚠️</span>
+                <div><b>ВОЗ:</b> Безопасной дозы алкоголя не существует. Любое потребление связано с риском.</div>
+            </div>
+            
             <div class="card">
-                <div class="title">СЕГОДНЯ</div>
-                <div class="grid">
-                    <div class="box"><span class="val" id="v1">0</span><span class="lbl">Граммов</span></div>
-                    <div class="box"><span class="val" id="v2" style="color:var(--g)">0</span><span class="lbl">Дней трезвости</span></div>
+                <div class="section-title">Статус сегодня</div>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-val" id="v1">0</span>
+                        <span class="metric-lbl">Граммов спирта</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="v2" style="color:var(--success)">0</span>
+                        <span class="metric-lbl">Дней трезвости</span>
+                    </div>
                 </div>
-                <div style="margin-top:15px">
-                    <div style="display:flex;justify-content:space-between;font-size:12px;color:#666"><span>Цель: <b id="gl">20</b></span><span id="st">Ост: 20</span></div>
-                    <div class="bar-bg"><div class="bar-fill" id="bf"></div></div>
+                
+                <div class="progress-wrap">
+                    <div class="progress-info">
+                        <span>Цель: <span id="gl-display">20</span> г</span>
+                        <span id="st-text">Осталось: 20 г</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="bf"></div>
+                    </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="title">РИСК (30 ДНЕЙ)</div>
-                <div id="risk" style="font-size:13px; padding:5px;"></div>
-            </div>
-            <button class="btn" onclick="go('s2')">+ Добавить</button>
+
+            <button class="btn-primary" onclick="go('s2')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Добавить напиток
+            </button>
         </div>
 
-        <!-- ADD -->
+        <!-- ADD ENTRY -->
         <div id="s2" class="screen">
             <div class="card">
-                <div class="title">ЗАПИСЬ</div>
+                <div class="section-title">Новая запись</div>
                 <input type="hidden" id="eid">
-                <select id="it" onchange="af()"><option value="beer">Пиво (4%)</option><option value="wine">Вино (12%)</option><option value="vodka">Водка (40%)</option><option value="whiskey">Виски (40%)</option><option value="custom">Свое</option></select>
-                <input type="number" id="iv" placeholder="Объем (мл)" inputmode="decimal">
-                <input type="number" id="ia" placeholder="Крепость (%)" inputmode="decimal">
-                <div style="background:#f9f9f9;padding:10px;border-radius:8px;margin-bottom:15px;text-align:right;font-weight:bold" id="cr">0 г</div>
-                <button class="btn" onclick="saveEntry()">Сохранить</button>
-                <button class="btn btn-sec" onclick="resetForm()">Отмена</button>
+                
+                <label>Тип напитка</label>
+                <select id="it" onchange="af()">
+                    <option value="beer">🍺 Пиво (4%)</option>
+                    <option value="wine">🍷 Вино (12%)</option>
+                    <option value="vodka">🥃 Водка (40%)</option>
+                    <option value="whiskey">🥃 Виски (40%)</option>
+                    <option value="custom">⚗️ Свой вариант</option>
+                </select>
+                
+                <label>Объем (мл)</label>
+                <input type="number" id="iv" placeholder="Например: 500" inputmode="decimal">
+                
+                <label>Крепость (%)</label>
+                <input type="number" id="ia" placeholder="40" inputmode="decimal">
+                
+                <div style="background:#F2F2F7; padding:16px; border-radius:16px; margin:20px 0; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:14px; color:var(--sub); font-weight:600;">Чистый спирт</span>
+                    <span style="font-size:22px; font-weight:800; color:var(--primary);" id="cr">0 г</span>
+                </div>
+                
+                <button class="btn-primary" onclick="saveEntry()">Сохранить</button>
+                <button class="btn-primary btn-secondary" onclick="resetForm()">Отмена</button>
             </div>
         </div>
 
         <!-- STATS -->
         <div id="s3" class="screen">
             <div class="card">
-                <div class="title">ГРАФИК (7 ДНЕЙ)</div>
-                <div class="chart" id="ch"></div>
+                <div class="section-title">Активность (7 дней)</div>
+                <div class="chart-row" id="ch"></div>
             </div>
+            
             <div class="card">
-                <div class="title">ЦИФРЫ</div>
-                <div class="row"><span>Среднее</span><b id="sa">0</b></div>
-                <div class="row"><span>Максимум</span><b id="sm">0</b></div>
+                <div class="section-title">Показатели</div>
+                <div class="list-item" style="border:none; padding:10px 0;">
+                    <div class="list-info"><h4>Среднее в день</h4></div>
+                    <div class="list-actions"><span style="font-weight:700; font-size:18px;" id="sa">0 г</span></div>
+                </div>
+                <div class="list-item" style="border:none; padding:10px 0;">
+                    <div class="list-info"><h4>Максимум за день</h4></div>
+                    <div class="list-actions"><span style="font-weight:700; font-size:18px;" id="sm">0 г</span></div>
+                </div>
             </div>
         </div>
 
-        <!-- HIST -->
+        <!-- HISTORY -->
         <div id="s4" class="screen">
-            <div class="card" id="hl"><div style="text-align:center;padding:20px;color:#999">Пусто</div></div>
+            <div class="card" id="hl">
+                <div style="text-align:center; padding:60px 20px; color:#999;">История пуста</div>
+            </div>
         </div>
+
+        <!-- SETTINGS -->
+        <div id="s5" class="screen">
+            <div class="card">
+                <div class="section-title">Настройки цели</div>
+                <label>Лимит чистого спирта в день (г)</label>
+                <input type="number" id="set-goal" placeholder="20">
+                <button class="btn-primary" onclick="saveSettings()">Сохранить цель</button>
+            </div>
+            
+            <div class="card fact-card">
+                <div class="section-title">О приложении</div>
+                <div class="fact-text">
+                    Alcohol Control v3.0<br>
+                    Данные хранятся локально. Дизайн адаптирован для быстрого доступа.
+                </div>
+            </div>
+        </div>
+
+        <!-- FACTS SECTION (Bottom) -->
+        <div id="facts-section" style="margin-top: 20px;">
+            <div class="card fact-card">
+                <div class="section-title">Полезные факты</div>
+                <div id="fact-container">
+                    <!-- JS inserts fact here -->
+                </div>
+            </div>
+        </div>
+
     </main>
 
+    <!-- SIDEBAR NAVIGATION (RIGHT) -->
     <nav>
-        <div class="nav-i act" onclick="go('s1')">
-            <span class="nav-ic">🏠</span>Главная
+        <div class="nav-item active" onclick="go('s1')">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </div>
+            <span class="nav-label">Главная</span>
         </div>
-        <div class="nav-i" onclick="go('s2')">
-            <span class="nav-ic">➕</span>Добавить
+        <div class="nav-item" onclick="go('s2')">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            </div>
+            <span class="nav-label">Добавить</span>
         </div>
-        <div class="nav-i" onclick="go('s4')">
-            <span class="nav-ic">📋</span>История
+        <div class="nav-item" onclick="go('s4')">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <span class="nav-label">История</span>
         </div>
-        <div class="nav-i" onclick="go('s3')">
-            <span class="nav-ic">📊</span>Статистика
+        <div class="nav-item" onclick="go('s3')">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            </div>
+            <span class="nav-label">Стат</span>
+        </div>
+        <div class="nav-item" onclick="go('s5')">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
+            <span class="nav-label">Цель</span>
         </div>
     </nav>
 </div>
 
 <script>
-    const K='alc_safe_v6'; 
-    let D={g:20,l:[]}; 
+    const K='alc_v_final_3'; 
+    let D={g:20, l:[]}; 
     
+    const facts = [
+        { t: " Гидратация", d: "Алкоголь является диуретиком. На каждые 10 г выпитого спирта организм теряет около 100 мл воды." },
+        { t: "🧠 Мозг", d: "Даже небольшие дозы алкоголя могут нарушать фазу быстрого сна (REM), что снижает качество отдыха." },
+        { t: "🍬 Калории", d: "1 г чистого спирта содержит 7 ккал. Это почти столько же, сколько в жире (9 ккал)." },
+        { t: "🛡️ Печень", d: "Печень может перерабатывать примерно 1 стандартную порцию алкоголя в час. Всё остальное циркулирует в крови." }
+    ];
+
     window.onload=()=>{
         const s=localStorage.getItem(K); 
         if(s) try { D=JSON.parse(s); } catch(e){ D={g:20,l:[]}; }
+        
         document.getElementById('dt').innerText=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+        document.getElementById('set-goal').value = D.g;
+        
         renderDash();
         ['iv','ia'].forEach(i=>document.getElementById(i).addEventListener('input',calcPreview));
+        
+        // Random fact
+        const f = facts[Math.floor(Math.random() * facts.length)];
+        document.getElementById('fact-container').innerHTML = `
+            <div class="fact-title">${f.t}</div>
+            <div class="fact-text">${f.d}</div>
+        `;
     };
     
-    function saveToLS(){ 
-        localStorage.setItem(K, JSON.stringify(D)); 
-    }
+    function saveToLS(){ localStorage.setItem(K, JSON.stringify(D)); }
     
     function go(id){
         document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
-        document.querySelectorAll('.nav-i').forEach(e=>e.classList.remove('act'));
+        document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
         document.getElementById(id).classList.add('on');
         
-        const m={'s1':0,'s2':1,'s4':2,'s3':3};
-        document.querySelectorAll('.nav-i')[m[id]].classList.add('act');
+        const m={'s1':0,'s2':1,'s4':2,'s3':3,'s5':4};
+        document.querySelectorAll('.nav-item')[m[id]].classList.add('active');
         
         if(id==='s1') renderDash(); 
         if(id==='s3') renderStats(); 
@@ -187,7 +422,7 @@
         const g=v*a*0.00789; 
         const n=new Date(); 
         const id=document.getElementById('eid').value;
-        const t=document.getElementById('it').options[document.getElementById('it').selectedIndex].text.split(' ')[0];
+        const t=document.getElementById('it').options[document.getElementById('it').selectedIndex].text.split(' ')[1] || 'Напиток';
         
         const e={
             id: id ? parseInt(id) : Date.now(), 
@@ -226,7 +461,7 @@
     }
     
     function deleteEntry(id){ 
-        if(confirm('Удалить?')){ 
+        if(confirm('Удалить запись?')){ 
             D.l=D.l.filter(x=>x.id!=id); 
             saveToLS(); 
             renderHist(); 
@@ -234,99 +469,85 @@
         } 
     }
     
+    function saveSettings(){
+        const newGoal = parseFloat(document.getElementById('set-goal').value);
+        if(newGoal > 0) {
+            D.g = newGoal;
+            saveToLS();
+            alert('Цель обновлена!');
+            go('s1');
+        }
+    }
+    
     function renderDash(){
         const td=new Date().toISOString().split('T')[0];
         const sm=D.l.filter(l=>l.d===td).reduce((s,l)=>s+l.g,0);
         
         document.getElementById('v1').innerText=sm.toFixed(1);
-        document.getElementById('gl').innerText=D.g;
+        document.getElementById('gl-display').innerText=D.g;
         
-        const bf=document.getElementById('bf'), st=document.getElementById('st');
+        const bf=document.getElementById('bf'), st=document.getElementById('st-text');
         const pct=Math.min((sm/D.g)*100,100);
         
         bf.style.width=pct+'%'; 
-        bf.style.background=sm>D.g?'var(--r)':'var(--g)';
-        st.innerText=sm>D.g ? `Превышено на ${Math.round(((sm-D.g)/D.g)*100)}%` : `Ост: ${(D.g-sm).toFixed(1)}`;
+        bf.style.background=sm>D.g?'var(--danger)':'var(--success)';
+        st.innerText=sm>D.g ? `Превышено на ${Math.round(((sm-D.g)/D.g)*100)}%` : `Ост: ${(D.g-sm).toFixed(1)} г`;
         
+        // Streak
         let str=0; 
         const ds=[...new Set(D.l.map(l=>l.d))].sort().reverse();
-        
-        if(ds.length > 0 && ds[0] === td) {
-            str = 0;
-        } else {
+        if(ds.length > 0 && ds[0] === td) str = 0;
+        else {
             str = 1; 
-            let d=new Date(); 
-            d.setDate(d.getDate()-1); 
-            
-            let safetyCounter = 0;
-            while(safetyCounter < 365){ 
-                const dateStr = d.toISOString().split('T')[0];
-                if(ds.includes(dateStr)) break; 
-                str++; 
-                d.setDate(d.getDate()-1); 
-                safetyCounter++;
+            let d=new Date(); d.setDate(d.getDate()-1); 
+            let safety = 0;
+            while(safety < 365){ 
+                if(ds.includes(d.toISOString().split('T')[0])) break; 
+                str++; d.setDate(d.getDate()-1); safety++;
             } 
         }
         document.getElementById('v2').innerText=str;
-        
-        const d30=new Date(); d30.setDate(d30.getDate()-30);
-        const recentLogs = D.l.filter(l=> new Date(l.d) >= d30);
-        const avg = recentLogs.length > 0 ? recentLogs.reduce((s,l)=>s+l.g,0)/30 : 0;
-        
-        const rb=document.getElementById('risk');
-        if(avg>40) rb.innerHTML='<span style="color:var(--r);font-weight:bold">ВЫСОКИЙ РИСК</span><br>Цирроз, Инсульт';
-        else if(avg>20) rb.innerHTML='<span style="color:orange;font-weight:bold">СРЕДНИЙ РИСК</span><br>Печень, Давление';
-        else rb.innerHTML='<span style="color:var(--g);font-weight:bold">НИЗКИЙ РИСК</span><br>Минимальное влияние';
     }
     
     function renderHist(){
         const l=document.getElementById('hl');
         if(!D.l.length){ 
-            l.innerHTML='<div style="text-align:center;padding:20px;color:#999">Пусто</div>'; 
+            l.innerHTML='<div style="text-align:center;padding:60px 20px; color:#999">История пуста</div>'; 
             return; 
         }
-        const recent = D.l.slice().reverse().slice(0, 50);
-        l.innerHTML=recent.map(x=>`
-            <div class="row">
-                <div>
-                    <div style="font-weight:500">${x.ty}</div>
-                    <div style="font-size:11px;color:#888">${x.d} ${x.t}</div>
+        l.innerHTML=D.l.slice().reverse().slice(0,50).map(x=>`
+            <div class="list-item">
+                <div class="list-info">
+                    <h4>${x.ty}</h4>
+                    <span>${x.d} • ${x.t}</span>
                 </div>
-                <div style="text-align:right">
-                    <div style="font-weight:bold">${x.g.toFixed(1)} г</div>
-                    <button class="act-btn e" onclick="editEntry(${x.id})">Изм</button> 
-                    <button class="act-btn del" onclick="deleteEntry(${x.id})">Уд</button>
+                <div class="list-actions">
+                    <span style="font-weight:700; margin-right:12px; font-size:16px;">${x.g.toFixed(1)} г</span>
+                    <button class="btn-edit" onclick="editEntry(${x.id})">Изменить</button>
+                    <button class="btn-del" onclick="deleteEntry(${x.id})">Удалить</button>
                 </div>
             </div>
         `).join('');
     }
     
     function renderStats(){
-        const ch=document.getElementById('ch'); 
-        ch.innerHTML='';
-        let mx=10; 
-        const vs=[];
+        const ch=document.getElementById('ch'); ch.innerHTML='';
+        let mx=10; const vs=[];
         const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
         
         for(let i=6;i>=0;i--){
-            const d=new Date(); 
-            d.setDate(d.getDate()-i);
+            const d=new Date(); d.setDate(d.getDate()-i);
             const ds=d.toISOString().split('T')[0];
             const v=D.l.filter(l=>l.d===ds).reduce((s,l)=>s+l.g,0);
-            vs.push(v); 
-            if(v>mx) mx=v;
+            vs.push(v); if(v>mx) mx=v;
         }
         
         vs.forEach((v,i)=>{
-            const h=(v/mx)*80;
-            const col=document.createElement('div'); 
-            col.className='col';
+            const h=(v/mx)*100;
+            const col=document.createElement('div'); col.className='chart-col';
+            const dateForLabel = new Date(); dateForLabel.setDate(dateForLabel.getDate()-(6-i));
             
-            const dateForLabel = new Date();
-            dateForLabel.setDate(dateForLabel.getDate() - (6-i));
-            const dayName = days[dateForLabel.getDay()];
-
-            col.innerHTML=`<div class="b ${v>0?'on':''}" style="height:${h}px"></div><div class="d">${dayName}</div>`;
+            col.innerHTML=`<div class="chart-bar ${v>0?'active':''}" style="height:${h}px"></div><div class="chart-day">${days[dateForLabel.getDay()]}</div>`;
             ch.appendChild(col);
         });
         
