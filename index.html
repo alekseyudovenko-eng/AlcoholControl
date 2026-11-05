@@ -169,6 +169,41 @@
         .btn-edit { color: var(--primary); background: rgba(0,122,255,0.1); } 
         .btn-del { color: var(--danger); background: rgba(255,59,48,0.1); }
 
+        /* Quick add */
+        .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .quick-btn {
+            background: #F9F9FB; border: 1px solid var(--border); border-radius: 18px;
+            padding: 14px 12px; cursor: pointer; font-family: inherit; color: var(--text);
+            display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+            text-align: left; transition: transform 0.15s, background 0.15s;
+        }
+        .quick-btn:active { transform: scale(0.97); background: #EEF4FF; }
+        .quick-emoji { font-size: 22px; }
+        .quick-name { font-size: 15px; font-weight: 700; }
+        .quick-sub { font-size: 12px; color: var(--sub); font-weight: 600; }
+
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* History groups */
+        .day-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px 0 6px; font-size: 13px; font-weight: 700; color: var(--sub);
+            text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0f0f0;
+        }
+        .day-head:first-child { padding-top: 0; }
+        .day-head .over { color: var(--danger); }
+
+        /* Toast */
+        .toast {
+            position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 150%);
+            background: var(--text); color: #fff; padding: 14px 18px; border-radius: 16px;
+            font-size: 15px; font-weight: 600; display: flex; gap: 16px; align-items: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); transition: transform 0.3s, visibility 0.3s; z-index: 200; visibility: hidden;
+            max-width: calc(100% - 32px);
+        }
+        .toast.show { transform: translate(-50%, 0); visibility: visible; }
+        .toast button { background: none; border: none; color: #4DA3FF; font-size: 15px; font-weight: 700; cursor: pointer; padding: 0; font-family: inherit; }
+
         /* Mobile Adaptation */
         @media (max-width: 600px) {
             .app-layout { flex-direction: column-reverse; }
@@ -227,10 +262,23 @@
                 </div>
             </div>
 
+            <div class="card">
+                <div class="section-title">Быстро добавить</div>
+                <div class="quick-grid" id="quick"></div>
+            </div>
+
             <button class="btn-primary" onclick="go('s2')">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Добавить напиток
             </button>
+
+            <!-- FACTS -->
+            <div style="margin-top: 20px;">
+                <div class="card fact-card">
+                    <div class="section-title">Полезные факты</div>
+                    <div id="fact-container"></div>
+                </div>
+            </div>
         </div>
 
         <!-- ADD ENTRY -->
@@ -253,14 +301,25 @@
                 
                 <label>Крепость (%)</label>
                 <input type="number" id="ia" placeholder="40" inputmode="decimal">
-                
+
+                <div class="row-2">
+                    <div>
+                        <label>Дата</label>
+                        <input type="date" id="idt">
+                    </div>
+                    <div>
+                        <label>Время</label>
+                        <input type="time" id="itm">
+                    </div>
+                </div>
+
                 <div style="background:#F2F2F7; padding:16px; border-radius:16px; margin:20px 0; display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:14px; color:var(--sub); font-weight:600;">Чистый спирт</span>
                     <span style="font-size:22px; font-weight:800; color:var(--primary);" id="cr">0 г</span>
                 </div>
                 
                 <button class="btn-primary" onclick="saveEntry()">Сохранить</button>
-                <button class="btn-primary btn-secondary" onclick="resetForm()">Отмена</button>
+                <button class="btn-primary btn-secondary" onclick="cancelForm()">Отмена</button>
             </div>
         </div>
 
@@ -300,21 +359,22 @@
                 <button class="btn-primary" onclick="saveSettings()">Сохранить цель</button>
             </div>
             
+            <div class="card">
+                <div class="section-title">Данные</div>
+                <div class="fact-text" style="margin-bottom:8px;">
+                    Данные хранятся только в этом браузере. Сохраняйте резервную копию, чтобы не потерять историю.
+                </div>
+                <button class="btn-primary" onclick="exportJSON()">Скачать резервную копию (JSON)</button>
+                <button class="btn-primary btn-secondary" onclick="exportCSV()">Экспорт в таблицу (CSV)</button>
+                <button class="btn-primary btn-secondary" onclick="document.getElementById('imp').click()">Восстановить из копии</button>
+                <input type="file" id="imp" accept="application/json,.json" style="display:none" onchange="importJSON(this)">
+            </div>
+
             <div class="card fact-card">
                 <div class="section-title">О приложении</div>
                 <div class="fact-text">
-                    Alcohol Control v3.0<br>
+                    Alcohol Control v3.1<br>
                     Данные хранятся локально. Дизайн адаптирован для быстрого доступа.
-                </div>
-            </div>
-        </div>
-
-        <!-- FACTS SECTION (Bottom) -->
-        <div id="facts-section" style="margin-top: 20px;">
-            <div class="card fact-card">
-                <div class="section-title">Полезные факты</div>
-                <div id="fact-container">
-                    <!-- JS inserts fact here -->
                 </div>
             </div>
         </div>
@@ -356,204 +416,365 @@
     </nav>
 </div>
 
+<div class="toast" id="toast"><span id="toast-text"></span><button id="toast-undo">Отменить</button></div>
+
 <script>
-    const K='alc_v_final_3'; 
-    let D={g:20, l:[]}; 
-    
+    const K='alc_v_final_3';
+    let D={g:20, l:[]};
+
+    // Типы напитков: ключ → название и крепость по умолчанию
+    const TYPES = {
+        beer:    { n: 'Пиво',   a: 4 },
+        wine:    { n: 'Вино',   a: 12 },
+        vodka:   { n: 'Водка',  a: 40 },
+        whiskey: { n: 'Виски',  a: 40 },
+        custom:  { n: 'Свой напиток', a: 0 }
+    };
+
+    // Быстрые кнопки
+    const QUICK = [
+        { k: 'beer',    e: '🍺', n: 'Пиво',  v: 500, a: 4,  s: '0,5 л' },
+        { k: 'wine',    e: '🍷', n: 'Вино',  v: 150, a: 12, s: 'бокал 150 мл' },
+        { k: 'vodka',   e: '🥃', n: 'Водка', v: 50,  a: 40, s: 'рюмка 50 мл' },
+        { k: 'whiskey', e: '🥃', n: 'Виски', v: 40,  a: 40, s: 'порция 40 мл' }
+    ];
+
     const facts = [
-        { t: " Гидратация", d: "Алкоголь является диуретиком. На каждые 10 г выпитого спирта организм теряет около 100 мл воды." },
+        { t: "💧 Гидратация", d: "Алкоголь является диуретиком. На каждые 10 г выпитого спирта организм теряет около 100 мл воды." },
         { t: "🧠 Мозг", d: "Даже небольшие дозы алкоголя могут нарушать фазу быстрого сна (REM), что снижает качество отдыха." },
         { t: "🍬 Калории", d: "1 г чистого спирта содержит 7 ккал. Это почти столько же, сколько в жире (9 ккал)." },
         { t: "🛡️ Печень", d: "Печень может перерабатывать примерно 1 стандартную порцию алкоголя в час. Всё остальное циркулирует в крови." }
     ];
 
+    const $ = id => document.getElementById(id);
+    const pad = n => String(n).padStart(2,'0');
+
+    // Локальная дата YYYY-MM-DD (а не UTC, как давал toISOString)
+    function localDate(d=new Date()){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+    function localTime(d=new Date()){ return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+    // Разница в днях между двумя датами YYYY-MM-DD (через полдень, чтобы не мешал переход на летнее время)
+    function dayDiff(a, b){
+        const p = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d,12); };
+        return Math.round((p(b)-p(a))/86400000);
+    }
+    function grams(v,a){ return v*a*0.00789; }
+
+    // Старые записи хранили дату в UTC: переводим её в локальную
+    function migrateDate(e){
+        if(!e.d || !e.t) return e.d;
+        const [y,m,dd]=e.d.split('-').map(Number);
+        const [hh,mi]=e.t.split(':').map(Number);
+        for(const off of [0,1,-1]){
+            const ld=new Date(y,m-1,dd+off,hh,mi);
+            if(ld.toISOString().slice(0,10)===e.d) return localDate(ld);
+        }
+        return e.d;
+    }
+    function keyByName(n){
+        for(const k in TYPES) if(TYPES[k].n===n) return k;
+        return 'custom';
+    }
+    function normalize(data){
+        const out = { g: parseFloat(data.g)>0 ? parseFloat(data.g) : 20, l: [], v: 2, start: data.start };
+        const old = data.v !== 2;
+        (Array.isArray(data.l)?data.l:[]).forEach(e=>{
+            const v=parseFloat(e.v), a=parseFloat(e.a);
+            if(!(v>0) || !(a>0) || !/^\d{4}-\d{2}-\d{2}$/.test(e.d||'')) return;
+            const x = {
+                id: Number(e.id) || Date.now()+Math.random(),
+                d: old ? migrateDate(e) : e.d,
+                t: /^\d{2}:\d{2}$/.test(e.t||'') ? e.t : '00:00',
+                k: TYPES[e.k] ? e.k : keyByName(e.ty),
+                ty: String(e.ty || 'Напиток').slice(0,40),
+                v, a, g: grams(v,a)
+            };
+            out.l.push(x);
+        });
+        if(!out.start){
+            const first = out.l.map(x=>x.d).sort()[0];
+            out.start = first || localDate();
+        }
+        return out;
+    }
+    function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
     window.onload=()=>{
-        const s=localStorage.getItem(K); 
-        if(s) try { D=JSON.parse(s); } catch(e){ D={g:20,l:[]}; }
-        
-        document.getElementById('dt').innerText=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-        document.getElementById('set-goal').value = D.g;
-        
+        let raw=null;
+        try { raw=JSON.parse(localStorage.getItem(K)); } catch(e){}
+        D = normalize(raw || {});
+        saveToLS();
+
+        $('dt').innerText=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+        $('set-goal').value = D.g;
+
+        $('quick').innerHTML = QUICK.map((q,i)=>`
+            <button class="quick-btn" onclick="quickAdd(${i})">
+                <span class="quick-emoji">${q.e}</span>
+                <span class="quick-name">${q.n}</span>
+                <span class="quick-sub">${q.s} · ${grams(q.v,q.a).toFixed(1)} г</span>
+            </button>`).join('');
+
         renderDash();
-        ['iv','ia'].forEach(i=>document.getElementById(i).addEventListener('input',calcPreview));
-        
-        // Random fact
+        ['iv','ia'].forEach(i=>$(i).addEventListener('input',calcPreview));
+
         const f = facts[Math.floor(Math.random() * facts.length)];
-        document.getElementById('fact-container').innerHTML = `
+        $('fact-container').innerHTML = `
             <div class="fact-title">${f.t}</div>
             <div class="fact-text">${f.d}</div>
         `;
     };
-    
-    function saveToLS(){ localStorage.setItem(K, JSON.stringify(D)); }
-    
+
+    function saveToLS(){ try { localStorage.setItem(K, JSON.stringify(D)); } catch(e){ alert('Не удалось сохранить данные в браузере'); } }
+
     function go(id){
         document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
         document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
-        document.getElementById(id).classList.add('on');
-        
+        $(id).classList.add('on');
+
         const m={'s1':0,'s2':1,'s4':2,'s3':3,'s5':4};
         document.querySelectorAll('.nav-item')[m[id]].classList.add('active');
-        
-        if(id==='s1') renderDash(); 
-        if(id==='s3') renderStats(); 
-        if(id==='s4') renderHist(); 
-        if(id==='s2' && !document.getElementById('eid').value) resetForm();
+
+        if(id==='s1') renderDash();
+        if(id==='s3') renderStats();
+        if(id==='s4') renderHist();
+        if(id==='s2' && !$('eid').value) resetForm();
+        document.querySelector('main').scrollTop = 0;
     }
 
-    function af(){ 
-        const m={beer:4,wine:12,vodka:40,whiskey:40,custom:0}; 
-        const v=m[document.getElementById('it').value]; 
-        if(v) document.getElementById('ia').value=v; 
-        calcPreview(); 
+    function af(){
+        const a=TYPES[$('it').value].a;
+        if(a) $('ia').value=a;
+        calcPreview();
     }
-    
-    function calcPreview(){ 
-        const v=parseFloat(document.getElementById('iv').value)||0; 
-        const a=parseFloat(document.getElementById('ia').value)||0; 
-        document.getElementById('cr').innerText=(v*a*0.00789).toFixed(1)+' г'; 
+
+    function calcPreview(){
+        const v=parseFloat($('iv').value)||0;
+        const a=parseFloat($('ia').value)||0;
+        $('cr').innerText=grams(v,a).toFixed(1)+' г';
     }
-    
+
     function saveEntry(){
-        const v=parseFloat(document.getElementById('iv').value);
-        const a=parseFloat(document.getElementById('ia').value);
-        if(!v||!a) return alert('Заполните объем и крепость');
-        
-        const g=v*a*0.00789; 
-        const n=new Date(); 
-        const id=document.getElementById('eid').value;
-        const t=document.getElementById('it').options[document.getElementById('it').selectedIndex].text.split(' ')[1] || 'Напиток';
-        
-        const e={
-            id: id ? parseInt(id) : Date.now(), 
-            d: n.toISOString().split('T')[0], 
-            t: n.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), 
-            ty: t, v, a, g
-        };
-        
-        if(id){ 
-            const i=D.l.findIndex(x=>x.id==id); 
-            if(i>-1) D.l[i]=e; 
+        const v=parseFloat($('iv').value);
+        const a=parseFloat($('ia').value);
+        if(!(v>0) || !(a>0)) return alert('Заполните объем и крепость');
+        if(a>100) return alert('Крепость не может быть больше 100%');
+
+        const id=$('eid').value;
+        const k=$('it').value;
+        const d=$('idt').value || localDate();
+        const t=$('itm').value || localTime();
+
+        const e={ id: id ? Number(id) : Date.now(), d, t, k, ty: TYPES[k].n, v, a, g: grams(v,a) };
+
+        if(id){
+            const i=D.l.findIndex(x=>x.id==id);
+            if(i>-1) D.l[i]=e; else D.l.push(e);
         } else {
-            D.l.push(e); 
+            D.l.push(e);
         }
-        
-        saveToLS(); 
-        resetForm(); 
+        if(d < D.start) D.start = d;
+
+        saveToLS();
+        resetForm();
         go('s1');
     }
-    
-    function resetForm(){ 
-        document.getElementById('eid').value=''; 
-        document.getElementById('iv').value=''; 
-        document.getElementById('ia').value=''; 
-        document.getElementById('cr').innerText='0 г'; 
+
+    function quickAdd(i){
+        const q=QUICK[i];
+        const e={ id: Date.now(), d: localDate(), t: localTime(), k: q.k, ty: q.n, v: q.v, a: q.a, g: grams(q.v,q.a) };
+        D.l.push(e);
+        saveToLS();
+        renderDash();
+        toast(`${q.n} ${q.s} · +${e.g.toFixed(1)} г`, ()=>{
+            D.l=D.l.filter(x=>x.id!==e.id);
+            saveToLS();
+            renderDash();
+        });
     }
-    
+
+    let toastTimer=null;
+    function toast(text, undo){
+        $('toast-text').innerText=text;
+        const b=$('toast-undo');
+        b.style.display = undo ? '' : 'none';
+        b.onclick = ()=>{ if(undo) undo(); hideToast(); };
+        $('toast').classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer=setTimeout(hideToast, 4000);
+    }
+    function hideToast(){ $('toast').classList.remove('show'); }
+
+    function resetForm(){
+        $('eid').value='';
+        $('it').value='beer';
+        $('iv').value='';
+        $('ia').value=TYPES.beer.a;
+        $('idt').value=localDate();
+        $('itm').value=localTime();
+        calcPreview();
+    }
+
+    function cancelForm(){
+        resetForm();
+        go('s1');
+    }
+
     function editEntry(id){
-        const l=D.l.find(x=>x.id==id); 
+        const l=D.l.find(x=>x.id==id);
         if(!l) return;
-        document.getElementById('eid').value=l.id; 
-        document.getElementById('iv').value=l.v; 
-        document.getElementById('ia').value=l.a; 
-        calcPreview(); 
+        $('eid').value=l.id;
+        $('it').value=TYPES[l.k] ? l.k : 'custom';
+        $('iv').value=l.v;
+        $('ia').value=l.a;
+        $('idt').value=l.d;
+        $('itm').value=l.t;
+        calcPreview();
         go('s2');
     }
-    
-    function deleteEntry(id){ 
-        if(confirm('Удалить запись?')){ 
-            D.l=D.l.filter(x=>x.id!=id); 
-            saveToLS(); 
-            renderHist(); 
+
+    function deleteEntry(id){
+        if(confirm('Удалить запись?')){
+            D.l=D.l.filter(x=>x.id!=id);
+            saveToLS();
+            renderHist();
             renderDash();
-        } 
+        }
     }
-    
+
     function saveSettings(){
-        const newGoal = parseFloat(document.getElementById('set-goal').value);
+        const newGoal = parseFloat($('set-goal').value);
         if(newGoal > 0) {
             D.g = newGoal;
             saveToLS();
             alert('Цель обновлена!');
             go('s1');
+        } else {
+            alert('Введите число больше нуля');
         }
     }
-    
+
+    function sumFor(ds){ return D.l.filter(l=>l.d===ds).reduce((s,l)=>s+l.g,0); }
+
     function renderDash(){
-        const td=new Date().toISOString().split('T')[0];
-        const sm=D.l.filter(l=>l.d===td).reduce((s,l)=>s+l.g,0);
-        
-        document.getElementById('v1').innerText=sm.toFixed(1);
-        document.getElementById('gl-display').innerText=D.g;
-        
-        const bf=document.getElementById('bf'), st=document.getElementById('st-text');
+        const td=localDate();
+        const sm=sumFor(td);
+
+        $('v1').innerText=sm.toFixed(1);
+        $('gl-display').innerText=D.g;
+
+        const bf=$('bf'), st=$('st-text');
         const pct=Math.min((sm/D.g)*100,100);
-        
-        bf.style.width=pct+'%'; 
+
+        bf.style.width=pct+'%';
         bf.style.background=sm>D.g?'var(--danger)':'var(--success)';
         st.innerText=sm>D.g ? `Превышено на ${Math.round(((sm-D.g)/D.g)*100)}%` : `Ост: ${(D.g-sm).toFixed(1)} г`;
-        
-        // Streak
-        let str=0; 
-        const ds=[...new Set(D.l.map(l=>l.d))].sort().reverse();
-        if(ds.length > 0 && ds[0] === td) str = 0;
-        else {
-            str = 1; 
-            let d=new Date(); d.setDate(d.getDate()-1); 
-            let safety = 0;
-            while(safety < 365){ 
-                if(ds.includes(d.toISOString().split('T')[0])) break; 
-                str++; d.setDate(d.getDate()-1); safety++;
-            } 
-        }
-        document.getElementById('v2').innerText=str;
+
+        // Дни трезвости: от последнего напитка (или от начала использования) до сегодня
+        const past = D.l.map(l=>l.d).filter(d=>d<=td).sort();
+        const last = past[past.length-1];
+        const str = last ? dayDiff(last, td) : Math.max(0, dayDiff(D.start, td));
+        $('v2').innerText=str;
     }
-    
+
     function renderHist(){
-        const l=document.getElementById('hl');
-        if(!D.l.length){ 
-            l.innerHTML='<div style="text-align:center;padding:60px 20px; color:#999">История пуста</div>'; 
-            return; 
+        const l=$('hl');
+        if(!D.l.length){
+            l.innerHTML='<div style="text-align:center;padding:60px 20px; color:#999">История пуста</div>';
+            return;
         }
-        l.innerHTML=D.l.slice().reverse().slice(0,50).map(x=>`
+        const sorted=D.l.slice().sort((a,b)=> (b.d+b.t).localeCompare(a.d+a.t) || b.id-a.id);
+        const groups=[];
+        sorted.forEach(x=>{
+            const g=groups[groups.length-1];
+            if(g && g.d===x.d) g.items.push(x); else groups.push({d:x.d, items:[x]});
+        });
+        l.innerHTML=groups.map(g=>{
+            const tot=g.items.reduce((s,x)=>s+x.g,0);
+            const [y,m,d]=g.d.split('-').map(Number);
+            const label=new Date(y,m-1,d).toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
+            return `
+            <div class="day-head"><span>${label}</span><span class="${tot>D.g?'over':''}">${tot.toFixed(1)} г</span></div>
+            ${g.items.map(x=>`
             <div class="list-item">
                 <div class="list-info">
-                    <h4>${x.ty}</h4>
-                    <span>${x.d} • ${x.t}</span>
+                    <h4>${esc(x.ty)}</h4>
+                    <span>${x.t} • ${x.v} мл, ${x.a}%</span>
                 </div>
                 <div class="list-actions">
                     <span style="font-weight:700; margin-right:12px; font-size:16px;">${x.g.toFixed(1)} г</span>
                     <button class="btn-edit" onclick="editEntry(${x.id})">Изменить</button>
                     <button class="btn-del" onclick="deleteEntry(${x.id})">Удалить</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('')}`;
+        }).join('');
     }
-    
+
     function renderStats(){
-        const ch=document.getElementById('ch'); ch.innerHTML='';
-        let mx=10; const vs=[];
+        const ch=$('ch'); ch.innerHTML='';
+        let mx=10; const vs=[], labels=[];
         const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-        
+
         for(let i=6;i>=0;i--){
             const d=new Date(); d.setDate(d.getDate()-i);
-            const ds=d.toISOString().split('T')[0];
-            const v=D.l.filter(l=>l.d===ds).reduce((s,l)=>s+l.g,0);
-            vs.push(v); if(v>mx) mx=v;
+            const v=sumFor(localDate(d));
+            vs.push(v); labels.push(days[d.getDay()]);
+            if(v>mx) mx=v;
         }
-        
+
         vs.forEach((v,i)=>{
             const h=(v/mx)*100;
             const col=document.createElement('div'); col.className='chart-col';
-            const dateForLabel = new Date(); dateForLabel.setDate(dateForLabel.getDate()-(6-i));
-            
-            col.innerHTML=`<div class="chart-bar ${v>0?'active':''}" style="height:${h}px"></div><div class="chart-day">${days[dateForLabel.getDay()]}</div>`;
+            col.innerHTML=`<div class="chart-bar ${v>0?'active':''}" style="height:${h}px"></div><div class="chart-day">${labels[i]}</div>`;
             ch.appendChild(col);
         });
-        
+
         const tot=vs.reduce((a,b)=>a+b,0);
-        document.getElementById('sa').innerText=(tot/7).toFixed(1)+' г';
-        document.getElementById('sm').innerText=Math.max(...vs).toFixed(1)+' г';
+        $('sa').innerText=(tot/7).toFixed(1)+' г';
+        $('sm').innerText=Math.max(...vs).toFixed(1)+' г';
+    }
+
+    // ===== Экспорт / импорт =====
+    function download(name, text, type){
+        const blob=new Blob([text],{type});
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download=name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function exportJSON(){
+        download(`alcohol-control-${localDate()}.json`, JSON.stringify(D,null,2), 'application/json');
+    }
+
+    function exportCSV(){
+        const rows=[['Дата','Время','Напиток','Объем (мл)','Крепость (%)','Чистый спирт (г)']];
+        D.l.slice().sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t)).forEach(x=>{
+            rows.push([x.d, x.t, x.ty, x.v, x.a, x.g.toFixed(1)]);
+        });
+        const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(';')).join('\r\n');
+        // BOM, чтобы Excel правильно открыл кириллицу
+        download(`alcohol-control-${localDate()}.csv`, '﻿'+csv, 'text/csv;charset=utf-8');
+    }
+
+    function importJSON(input){
+        const file=input.files[0];
+        input.value='';
+        if(!file) return;
+        const r=new FileReader();
+        r.onload=()=>{
+            let data;
+            try { data=JSON.parse(r.result); } catch(e){ return alert('Файл повреждён или это не резервная копия'); }
+            if(!data || !Array.isArray(data.l)) return alert('В файле нет записей Alcohol Control');
+            const imp=normalize(data);
+            if(!confirm(`В копии ${imp.l.length} записей. Заменить текущие данные (${D.l.length} записей)?`)) return;
+            D=imp;
+            saveToLS();
+            $('set-goal').value=D.g;
+            alert('Данные восстановлены');
+            go('s1');
+        };
+        r.readAsText(file);
     }
 </script>
 </body>
